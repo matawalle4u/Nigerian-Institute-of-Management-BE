@@ -1,10 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Login } from './entities/login.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import * as moment from 'moment';
+import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
 export class AccountService {
@@ -34,25 +40,38 @@ export class AccountService {
     return user;
   }
 
-  async createAccount(email: string, password: string, userId: number) {
+  async createUser(signupDto: SignupDto): Promise<Login> {
+    const { username, password } = signupDto;
+
+    // Check if the email already exists
+    const existingUser = await this.loginRepository.findOne({
+      where: { email: username },
+    });
+    if (existingUser) {
+      throw new ConflictException('Email is already registered');
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.loginRepository.update(userId, {
-      email,
+    // Create the user object
+    const newUser = this.loginRepository.create({
+      username,
+      email: username,
       password: hashedPassword,
+      default_password: 'no',
+      status: 'active',
     });
 
-    const user = await this.loginRepository.findOne({ where: { id: userId } });
-    const payload = {
-      id: user.id,
-      email: user.email,
-      authority: user.authority,
-    };
-
-    return {
-      token: this.jwtService.sign(payload),
-    };
+    try {
+      // Save the user in the database
+      return await this.loginRepository.save(newUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new InternalServerErrorException('Failed to create user');
+    }
   }
+
   async fetchUserInfo(authToken: string): Promise<any> {
     const user = await this.loginRepository.findOne({
       where: { reset_token: authToken, status: 'active' },

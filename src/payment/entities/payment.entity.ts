@@ -23,6 +23,6 @@ export class Payment {
   @Column({ type: 'datetime' })
   date: Date;
 
-  @ManyToOne(() => Login, (user) => user.payments)
+  @ManyToOne(() => Login, (user) => user.id)
   user: Login;
 }

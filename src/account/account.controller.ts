@@ -9,6 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
+import { SignupDto } from './dto/signup.dto';
 
 @Controller('account')
 export class AccountController {
@@ -27,14 +28,8 @@ export class AccountController {
 
   @Post('signup')
   @HttpCode(201)
-  async createAccount(
-    @Body() body: { userId: number; email: string; password: string },
-  ) {
-    return this.accountService.createAccount(
-      body.email,
-      body.password,
-      body.userId,
-    );
+  async createAccount(@Body() signupDto: SignupDto) {
+    return this.accountService.createUser(signupDto);
   }
 
   @Get('fetch-info')

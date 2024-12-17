@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from './account/account.module';
 import { PaymentModule } from './payment/payment.module';
+import { GradeModule } from './grade/grade.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PaymentModule } from './payment/payment.module';
     }),
     AccountModule,
     PaymentModule,
+    GradeModule,
   ],
 })
 export class AppModule {}

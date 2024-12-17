@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
+
 @Entity('login')
 export class Login {
   @PrimaryGeneratedColumn()
