@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Login } from './entities/login.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as moment from 'moment';
 
 @Injectable()
 export class AccountService {
@@ -21,7 +22,13 @@ export class AccountService {
       where: [{ username: membership }, { email: membership }],
     });
 
-    if (!user || !(user.username === nameOrDob || user.date === nameOrDob)) {
+    if (
+      !user ||
+      !(
+        user.username === nameOrDob ||
+        moment(user.date).format('YYYY-MM-DD') === nameOrDob
+      )
+    ) {
       throw new UnauthorizedException('Invalid membership or personal details');
     }
     return user;
