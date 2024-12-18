@@ -41,23 +41,20 @@ export class AccountService {
   }
 
   async createUser(signupDto: SignupDto): Promise<Login> {
-    const { username, password } = signupDto;
+    const { username, email, password } = signupDto;
 
-    // Check if the email already exists
     const existingUser = await this.loginRepository.findOne({
-      where: { email: username },
+      where: { email: email },
     });
     if (existingUser) {
       throw new ConflictException('Email is already registered');
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user object
     const newUser = this.loginRepository.create({
       username,
-      email: username,
+      email,
       password: hashedPassword,
       default_password: 'no',
       status: 'active',
