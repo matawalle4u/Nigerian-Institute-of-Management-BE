@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from './account/account.module';
@@ -8,21 +9,33 @@ import { MembershipModule } from './membership/membership.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '172.18.0.2',
-      port: 3306,
-      username: 'root',
-      password: 'Ixxah2san!!',
-      database: 'nimportal',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Set to false in production
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      driver: require('mysql2'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
-    JwtModule.register({
-      secret: 'Yan2Mak!!', // TODO Use a strong secret in production
-      signOptions: { expiresIn: '1h' },
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // Set to false in production
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        driver: require('mysql2'),
+      }),
+      inject: [ConfigService],
+    }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
+      }),
+      inject: [ConfigService],
     }),
     AccountModule,
     PaymentModule,
