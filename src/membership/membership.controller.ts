@@ -36,6 +36,7 @@ export class MembershipController {
           grade: 'graduate',
           lifeMember: 'no',
           license: 'yes',
+          induction: 'yes',
         },
       },
     },
