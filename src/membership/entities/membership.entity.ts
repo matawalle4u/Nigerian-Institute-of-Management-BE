@@ -1,24 +1,32 @@
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class Membership {
+@Entity('members')
+export class Members {
+  @PrimaryGeneratedColumn()
   @ApiProperty({ example: 1, description: 'Unique identifier for the member' })
   id: number;
 
+  @Column()
   @ApiProperty({
     example: 101,
     description: 'Login ID associated with the member',
   })
   loginId: number;
 
+  @Column()
   @ApiProperty({ example: 'MEM12345', description: 'Unique member number' })
   memberNo: string;
 
+  @Column()
   @ApiProperty({ example: 'John', description: 'First name of the member' })
   firstName: string;
 
+  @Column()
   @ApiProperty({ example: 'Doe', description: 'Last name of the member' })
   lastName: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'Michael',
     description: 'Other name of the member',
@@ -26,6 +34,7 @@ export class Membership {
   })
   otherName?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: '1234567890',
     description: 'Phone number of the member',
@@ -33,6 +42,7 @@ export class Membership {
   })
   phone?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: '123 Main St',
     description: 'Address of the member',
@@ -40,6 +50,7 @@ export class Membership {
   })
   address?: string;
 
+  @Column()
   @ApiProperty({
     example: 'male',
     enum: ['male', 'female'],
@@ -47,18 +58,21 @@ export class Membership {
   })
   gender: 'male' | 'female';
 
+  @Column()
   @ApiProperty({
     example: '1990-01-01',
     description: 'Date of birth of the member',
   })
   dateOfBirth: string;
 
+  @Column()
   @ApiProperty({
     example: '2022-12-01',
     description: 'Date of election for the member',
   })
   dateOfElection: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'Tech Corp',
     description: 'Employer of the member',
@@ -66,6 +80,7 @@ export class Membership {
   })
   employer?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 2,
     description: 'Chapter ID of the member',
@@ -73,9 +88,11 @@ export class Membership {
   })
   chapter?: number;
 
+  @Column()
   @ApiProperty({ example: 5, description: 'Zone ID of the member' })
   zone: number;
 
+  @Column()
   @ApiProperty({
     example: 'graduate',
     enum: ['graduate', 'associate', 'member', 'fellow', 'companion'],
@@ -83,6 +100,7 @@ export class Membership {
   })
   grade: 'graduate' | 'associate' | 'member' | 'fellow' | 'companion';
 
+  @Column()
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
@@ -90,6 +108,7 @@ export class Membership {
   })
   lifeMember: 'yes' | 'no';
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 25,
     description: 'Cumulative CP points of the member',
@@ -97,6 +116,7 @@ export class Membership {
   })
   cumulativeCp?: number;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'Abuja',
     description: 'State of residence of the member',
@@ -104,6 +124,7 @@ export class Membership {
   })
   stateOfResidence?: string;
 
+  @Column()
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
@@ -111,6 +132,7 @@ export class Membership {
   })
   license: 'yes' | 'no';
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'LIC2023-0001',
     description: 'License number of the member',
@@ -118,6 +140,7 @@ export class Membership {
   })
   licenseNo?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: '2023-11-01T12:00:00Z',
     description: 'Submission date for induction',
@@ -125,6 +148,7 @@ export class Membership {
   })
   submissionDate?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
@@ -133,6 +157,7 @@ export class Membership {
   })
   upgradeApplicationStatus?: 'yes' | 'no';
 
+  @Column()
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
@@ -140,6 +165,7 @@ export class Membership {
   })
   induction: 'yes' | 'no';
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
@@ -148,6 +174,7 @@ export class Membership {
   })
   accepted?: 'yes' | 'no';
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'Missing documents',
     description: 'Reason for rejection',
@@ -155,6 +182,7 @@ export class Membership {
   })
   rejectMsg?: string;
 
+  @Column({ nullable: true })
   @ApiProperty({
     example: 'passport.jpg',
     description: 'Member passport',

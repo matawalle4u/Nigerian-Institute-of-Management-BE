@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
-import { Membership } from './entities/membership.entity';
+import { Members } from './entities/membership.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('members')
@@ -19,7 +19,7 @@ export class MembershipController {
   @Post()
   @ApiOperation({ summary: 'Create a new member' })
   @ApiBody({
-    type: Membership,
+    type: Members,
     description: 'Member data for creation',
     examples: {
       default: {
@@ -43,9 +43,9 @@ export class MembershipController {
   @ApiResponse({
     status: 201,
     description: 'Member created successfully',
-    type: Membership,
+    type: Members,
   })
-  create(@Body() memberData: Partial<Membership>) {
+  create(@Body() memberData: Partial<Members>) {
     return this.membershipService.create(memberData);
   }
 
@@ -54,7 +54,7 @@ export class MembershipController {
   @ApiResponse({
     status: 200,
     description: 'List of members',
-    type: [Membership],
+    type: [Members],
   })
   findAll() {
     return this.membershipService.findAll();
@@ -62,7 +62,7 @@ export class MembershipController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a single member by ID' })
-  @ApiResponse({ status: 200, description: 'Member details', type: Membership })
+  @ApiResponse({ status: 200, description: 'Member details', type: Members })
   @ApiResponse({ status: 404, description: 'Member not found' })
   findOne(@Param('id') id: number) {
     return this.membershipService.findOne(id);
@@ -70,13 +70,13 @@ export class MembershipController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a member' })
-  @ApiBody({ type: Membership, description: 'Updated member data' })
+  @ApiBody({ type: Members, description: 'Updated member data' })
   @ApiResponse({
     status: 200,
     description: 'Member updated successfully',
-    type: Membership,
+    type: Members,
   })
-  update(@Param('id') id: number, @Body() updateData: Partial<Membership>) {
+  update(@Param('id') id: number, @Body() updateData: Partial<Members>) {
     return this.membershipService.update(id, updateData);
   }
 
