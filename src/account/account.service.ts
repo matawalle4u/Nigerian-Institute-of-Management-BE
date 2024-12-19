@@ -83,7 +83,10 @@ export class AccountService {
     }
   }
 
-  async login(email: string, password: string): Promise<Login> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string; user: Login }> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.loginRepository.findOne({
       where: [{ email: email }, { password: hashedPassword }],
@@ -93,7 +96,9 @@ export class AccountService {
       throw new InternalServerErrorException('Invalid Credentials');
     }
 
-    return user;
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken, user };
   }
 
   async fetchUserInfo(authToken: string): Promise<any> {
