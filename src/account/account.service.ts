@@ -83,6 +83,19 @@ export class AccountService {
     }
   }
 
+  async login(email: string, password: string): Promise<Login> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await this.loginRepository.findOne({
+      where: [{ email: email }, { password: hashedPassword }],
+    });
+
+    if (!user) {
+      throw new InternalServerErrorException('Invalid Credentials');
+    }
+
+    return user;
+  }
+
   async fetchUserInfo(authToken: string): Promise<any> {
     const user = await this.loginRepository.findOne({
       where: { reset_token: authToken, status: 'active' },
