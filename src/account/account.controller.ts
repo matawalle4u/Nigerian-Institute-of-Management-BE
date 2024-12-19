@@ -10,18 +10,21 @@ import {
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
+import { ValidateMembershipDto } from './dto/validate-membership.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Post('validate')
+  @ApiBody({ type: ValidateMembershipDto })
   async validateMembership(
-    @Body() body: { membership: string; nameOrDob: string },
+    @Body() validateMembershipDto: ValidateMembershipDto,
   ) {
     const user = await this.accountService.validateMembership(
-      body.membership,
-      body.nameOrDob,
+      validateMembershipDto.membership,
+      validateMembershipDto.nameOrDob,
     );
     return { success: true, userId: user.id };
   }
