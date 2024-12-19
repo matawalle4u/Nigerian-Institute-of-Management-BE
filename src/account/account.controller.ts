@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
+import { SigninDto } from './dto/signin.dto';
 import { ValidateMembershipDto } from './dto/validate-membership.dto';
 import { ApiBody } from '@nestjs/swagger';
 
@@ -33,6 +34,12 @@ export class AccountController {
   @HttpCode(201)
   async createAccount(@Body() signupDto: SignupDto) {
     return this.accountService.createUser(signupDto);
+  }
+
+  @Post('login')
+  @HttpCode(201)
+  async login(@Body() signinDto: SigninDto) {
+    return this.accountService.login(signinDto.email, signinDto.password);
   }
 
   @Get('fetch-info')
