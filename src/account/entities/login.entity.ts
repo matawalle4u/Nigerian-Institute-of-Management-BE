@@ -29,9 +29,9 @@ export class Login {
     default: 'active',
   })
   status: 'active' | 'inactive';
-  @Column({ nullable: true, length: 16 })
+  @Column({ nullable: true, length: 512 })
   reset_token: string | null;
-  @Column({ nullable: true, length: 16 })
+  @Column({ nullable: true, length: 512 })
   activation_token: string | null;
   @CreateDateColumn()
   date: Date;
