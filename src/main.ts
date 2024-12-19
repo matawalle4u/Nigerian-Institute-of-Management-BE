@@ -5,6 +5,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  //CORS enabling
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'https://nigerian-institute-of-management-be.onrender.com/',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('NIM API')
