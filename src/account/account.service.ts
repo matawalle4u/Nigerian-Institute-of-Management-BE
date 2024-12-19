@@ -105,24 +105,26 @@ export class AccountService {
   }
 
   async fetchUserInfo(authToken: string): Promise<any> {
-    const user = await this.loginRepository.findOne({
-      where: { reset_token: authToken, status: 'active' },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid or expired token');
+    try {
+      const payload = this.jwtService.verify(authToken);
+      const user = await this.loginRepository.findOne({
+        where: { email: payload.email, status: 'active' },
+      });
+      if (!user) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
+      const userInfo = {
+        membershipId: user.id,
+        membershipGrade: user.authority,
+        membershipChapter: 'Default Chapter', // Replace with actual logic
+        outstandingDue: 0, // TODO Replace with actual logic
+        name: user.username,
+        email: user.email,
+        status: user.status,
+      };
+      return userInfo;
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
     }
-
-    const userInfo = {
-      membershipId: user.id,
-      membershipGrade: user.authority, // Mapping authority to grade
-      membershipChapter: 'Default Chapter', // Replace with actual logic
-      outstandingDue: 0, // Replace with actual logic
-      name: user.username,
-      email: user.email,
-      status: user.status,
-    };
-
-    return userInfo;
   }
 }
