@@ -11,32 +11,46 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import * as moment from 'moment';
 import { SignupDto } from './dto/signup.dto';
+import { Members } from 'src/membership/entities/membership.entity';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
+
+    @InjectRepository(Members)
+    private readonly memberRepository: Repository<Members>,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateMembership(
     membership: string,
     nameOrDob: string,
-  ): Promise<Login> {
-    const user = await this.loginRepository.findOne({
-      where: [{ username: membership }, { email: membership }],
+  ): Promise<Members> {
+    const nameParts = nameOrDob.split(' ');
+    const isFullName = nameParts.length > 1;
+
+    const user = await this.memberRepository.findOne({
+      where: [
+        {
+          memberNo: membership,
+          ...(isFullName
+            ? {
+                firstName: nameParts[0],
+                lastName: nameParts.slice(1).join(' '),
+              }
+            : { dateOfBirth: nameOrDob }),
+        },
+      ],
     });
 
-    if (
-      !user ||
-      !(
-        user.username === nameOrDob ||
-        moment(user.date).format('YYYY-MM-DD') === nameOrDob
-      )
-    ) {
-      throw new UnauthorizedException('Invalid membership or personal details');
+    if (!user) {
+      throw new UnauthorizedException(
+        `Invalid membership or personal details: ${membership}`,
+      );
     }
+
     return user;
   }
 
