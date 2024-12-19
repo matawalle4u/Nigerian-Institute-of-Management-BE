@@ -65,6 +65,8 @@ export class AccountService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const payload = { sub: username, email: email };
+    const accessToken = this.jwtService.sign(payload);
 
     const newUser = this.loginRepository.create({
       username,
@@ -72,6 +74,7 @@ export class AccountService {
       password: hashedPassword,
       default_password: 'no',
       status: 'active',
+      reset_token: accessToken,
     });
 
     try {
