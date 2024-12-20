@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { Login } from './entities/login.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import * as moment from 'moment';
 import { SignupDto } from './dto/signup.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 
