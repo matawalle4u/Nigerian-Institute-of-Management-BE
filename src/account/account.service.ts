@@ -3,6 +3,8 @@ import {
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,9 +13,11 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
 import { Members } from 'src/membership/entities/membership.entity';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AccountService {
+  userRepository: any;
   constructor(
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
@@ -124,6 +128,38 @@ export class AccountService {
       return userInfo;
     } catch (error) {
       throw new UnauthorizedException(error.message);
+    }
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await this.userRepository.save(user);
+  }
+  decodeToken(token: string): string {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+      return decoded.userId;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }
