@@ -3,7 +3,7 @@
 import { Entity, PrimaryColumn, Column, ManyToOne } from 'typeorm';
 import { Login } from 'src/account/entities/login.entity';
 
-@Entity('payment') // Table name as per your schema
+@Entity('payment')
 export class Payment {
   @PrimaryColumn({ type: 'char', length: 18 })
   paymentId: string;
