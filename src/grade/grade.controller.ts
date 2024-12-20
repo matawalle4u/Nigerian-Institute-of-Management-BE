@@ -29,4 +29,8 @@ export class GradeController {
   ) {
     return this.gradeService.upgradeMemberGrade(loginId, newGrade);
   }
+  @Get('history/:loginId')
+  async getUserGradeHistory(@Param('loginId') loginId: number) {
+    return this.gradeService.getUserGradeHistory(loginId);
+  }
 }
