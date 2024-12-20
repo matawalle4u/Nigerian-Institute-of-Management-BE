@@ -1,9 +1,11 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import {
   PaymentHistoryDto,
   OutstandingPaymentDto,
 } from './dto/payment-history.dto';
+import { InitiatePaymentDto } from './dto/initiate-payment.dto';
+import { VerifyPaymentDto } from './dto/verify-payment.dto';
 
 @Controller('payment')
 export class PaymentController {
@@ -32,5 +34,15 @@ export class PaymentController {
       description: payment.status || 'No Status',
       amount: payment.amount,
     }));
+  }
+
+  @Post('initialize')
+  async initializePayment(@Body() initiatePaymentDto: InitiatePaymentDto) {
+    return this.paymentService.initializePayment(initiatePaymentDto);
+  }
+
+  @Post('verify')
+  async verifyPayment(@Body() verifyPaymentDto: VerifyPaymentDto) {
+    return this.paymentService.verifyPayment(verifyPaymentDto.reference);
   }
 }
