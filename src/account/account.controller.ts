@@ -13,6 +13,7 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { ValidateMembershipDto } from './dto/validate-membership.dto';
 import { ApiBody } from '@nestjs/swagger';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('account')
 export class AccountController {
@@ -61,5 +62,33 @@ export class AccountController {
       success: true,
       data: userInfo,
     };
+  }
+  @Post('change-password')
+  async changePassword(
+    @Headers('Authorization') authToken: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    if (!authToken) {
+      throw new HttpException(
+        'Authorization token is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Strip "Bearer " prefix if it exists
+    const token = authToken.startsWith('Bearer ')
+      ? authToken.slice(7)
+      : authToken;
+
+    // Extract user ID from token (Assuming you have a token decoding method)
+    const userId = this.accountService.decodeToken(token); // Implement decodeToken in the service
+
+    await this.accountService.changePassword(
+      userId,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+    );
+
+    return { success: true, message: 'Password changed successfully' };
   }
 }
