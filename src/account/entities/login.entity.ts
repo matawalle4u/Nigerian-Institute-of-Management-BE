@@ -7,7 +7,7 @@ import {
 
 @Entity('login')
 export class Login {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
   @Column({ length: 32 })
   username: string;
