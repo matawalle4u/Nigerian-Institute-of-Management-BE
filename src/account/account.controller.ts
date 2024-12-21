@@ -85,7 +85,6 @@ export class AccountController {
 
     await this.accountService.changePassword(
       userId,
-      changePasswordDto.currentPassword,
       changePasswordDto.newPassword,
     );
 
