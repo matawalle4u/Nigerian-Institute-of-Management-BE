@@ -83,10 +83,7 @@ export class AccountController {
     // Extract user ID from token
     const userId = this.accountService.decodeToken(token);
 
-    await this.accountService.changePassword(
-      userId,
-      changePasswordDto.newPassword,
-    );
+    await this.accountService.changePassword(changePasswordDto, userId);
 
     return { success: true, message: 'Password changed successfully' };
   }
