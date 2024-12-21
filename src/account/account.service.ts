@@ -131,31 +131,39 @@ export class AccountService {
     }
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
-    const { currentPassword, newPassword } = changePasswordDto;
-
+  async changePassword(
+    changePasswordDto: ChangePasswordDto,
+    authorizationHeader: string,
+  ): Promise<void> {
+    const { newPassword } = changePasswordDto;
+    // Ensure the Authorization header is provided
+    if (!authorizationHeader) {
+      throw new BadRequestException('Authorization header is missing');
+    }
+    // Extract the token from the Authorization header
+    const token = authorizationHeader.split(' ')[1]; // Assuming 'Bearer <token>'
+    if (!token) {
+      throw new BadRequestException('Invalid Authorization header format');
+    }
+    // Decode the token to get the user ID
+    const decoded = this.decodeToken(token);
+    const userId = parseInt(decoded.userId, 10); // Convert userId to a number
+    //const userId = decoded.userId;
+    // Find the user by ID
     const user = await this.loginRepository.findOne({ where: { id: userId } });
-
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const isCurrentPasswordValid = await bcrypt.compare(
-      currentPassword,
-      user.password,
-    );
-    if (!isCurrentPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
-    }
-
+    // Hash the new password
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
+    // Save the updated user
     await this.loginRepository.save(user);
   }
-  decodeToken(token: string): string {
+  decodeToken(token: string): { userId: string } {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-      return decoded.userId;
+      return { userId: decoded.sub }; // Assuming `sub` contains the user ID
     } catch (error) {
       throw new BadRequestException(error.message);
     }
