@@ -7,7 +7,7 @@ import { Payment } from './entities/payment.entity';
 import { Login } from '../account/entities/login.entity';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 import { PaystackResponse, PaymentData } from './dto/paystack.dto';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 @Injectable()
 export class PaymentService {
@@ -43,21 +43,22 @@ export class PaymentService {
   async initiatePayment(
     initiatePaymentDto: InitiatePaymentDto,
   ): Promise<PaymentData> {
-    const { data } = await axios.post(
-      `${this.paystackBaseUrl}/transaction/initialize`,
-      initiatePaymentDto,
-      {
-        headers: {
-          Authorization: `Bearer ${this.paystackSecretKey}`,
+    const response: AxiosResponse<PaystackResponse<PaymentData>> =
+      await axios.post(
+        `${this.paystackBaseUrl}/transaction/initialize`,
+        initiatePaymentDto,
+        {
+          headers: {
+            Authorization: `Bearer ${this.paystackSecretKey}`,
+          },
         },
-      },
-    );
+      );
 
-    if (!data.status) {
-      throw new Error(data.message);
+    if (!response.data.status) {
+      throw new Error(response.data.message);
     }
 
-    return data.data;
+    return response.data.data;
   }
   /**
    * Verify a payment
@@ -66,23 +67,24 @@ export class PaymentService {
    */
   async verifyPayment(reference: string): Promise<PaymentData> {
     try {
-      const { data } = await axios.get(
-        `${this.paystackBaseUrl}/transaction/verify/${reference}`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.paystackSecretKey}`,
+      const response: AxiosResponse<PaystackResponse<PaymentData>> =
+        await axios.get(
+          `${this.paystackBaseUrl}/transaction/verify/${reference}`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.paystackSecretKey}`,
+            },
           },
-        },
-      );
+        );
 
-      if (!data.status) {
+      if (!response.data.status) {
         throw new HttpException(
-          data.message || 'Payment verification failed',
+          response.data.message || 'Payment verification failed',
           HttpStatus.BAD_REQUEST,
         );
       }
 
-      return data.data; // Return the verified payment data
+      return response.data.data; // Return the verified payment data
     } catch (error) {
       throw new HttpException(
         error.response?.data?.message || 'Error verifying payment',
