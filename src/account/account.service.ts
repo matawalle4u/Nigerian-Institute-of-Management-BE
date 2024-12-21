@@ -14,10 +14,10 @@ import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 import * as jwt from 'jsonwebtoken';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AccountService {
-  userRepository: any;
   constructor(
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
@@ -131,12 +131,10 @@ export class AccountService {
     }
   }
 
-  async changePassword(
-    userId: string,
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+    const { currentPassword, newPassword } = changePasswordDto;
+
+    const user = await this.loginRepository.findOne({ where: { id: userId } });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -152,7 +150,7 @@ export class AccountService {
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
-    await this.userRepository.save(user);
+    await this.loginRepository.save(user);
   }
   decodeToken(token: string): string {
     try {
