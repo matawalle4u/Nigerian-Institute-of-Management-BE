@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Login } from '../account/entities/login.entity';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
+import { PaystackResponse, PaymentData } from './dto/paystack.dto';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
@@ -38,55 +40,33 @@ export class PaymentService {
     });
   }
 
-  async initializePayment(
+  async initiatePayment(
     initiatePaymentDto: InitiatePaymentDto,
-  ): Promise<any> {
-    const { name, email, amount, callbackUrl } = initiatePaymentDto;
-
-    // Convert amount to kobo (smallest Paystack currency unit)
-    const amountInKobo = amount * 100;
-
-    try {
-      const response = await axios.post(
-        `${this.paystackBaseUrl}/transaction/initialize`,
-        {
-          email,
-          amount: amountInKobo,
-          callback_url: callbackUrl,
-          metadata: {
-            custom_fields: [
-              {
-                display_name: 'Customer Name',
-                variable_name: 'customer_name',
-                value: name,
-              },
-            ],
-          },
+  ): Promise<PaymentData> {
+    const { data } = await axios.post(
+      `${this.paystackBaseUrl}/transaction/initialize`,
+      initiatePaymentDto,
+      {
+        headers: {
+          Authorization: `Bearer ${this.paystackSecretKey}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${this.paystackSecretKey}`,
-          },
-        },
-      );
+      },
+    );
 
-      return response.data;
-    } catch (error) {
-      throw new HttpException(
-        error.response?.data?.message || 'Payment initialization failed',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (!data.status) {
+      throw new Error(data.message);
     }
-  }
 
+    return data.data;
+  }
   /**
    * Verify a payment
    * @param reference
    * @returns Paystack payment verification response
    */
-  async verifyPayment(reference: string): Promise<any> {
+  async verifyPayment(reference: string): Promise<PaymentData> {
     try {
-      const response = await axios.get(
+      const { data } = await axios.get(
         `${this.paystackBaseUrl}/transaction/verify/${reference}`,
         {
           headers: {
@@ -95,20 +75,18 @@ export class PaymentService {
         },
       );
 
-      // Ensure transaction status is successful
-      const { status, data } = response.data;
-      if (status && data.status === 'success') {
-        return data;
-      } else {
+      if (!data.status) {
         throw new HttpException(
-          'Payment verification failed',
+          data.message || 'Payment verification failed',
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      return data.data; // Return the verified payment data
     } catch (error) {
       throw new HttpException(
-        error.response?.data?.message || 'Payment verification failed',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response?.data?.message || 'Error verifying payment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

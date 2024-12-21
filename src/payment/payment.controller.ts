@@ -38,7 +38,7 @@ export class PaymentController {
 
   @Post('initialize')
   async initializePayment(@Body() initiatePaymentDto: InitiatePaymentDto) {
-    return this.paymentService.initializePayment(initiatePaymentDto);
+    return this.paymentService.initiatePayment(initiatePaymentDto);
   }
 
   @Post('verify')
