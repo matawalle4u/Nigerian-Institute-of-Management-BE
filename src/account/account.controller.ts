@@ -14,6 +14,7 @@ import { SigninDto } from './dto/signin.dto';
 import { ValidateMembershipDto } from './dto/validate-membership.dto';
 import { ApiBody } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { stringify } from 'querystring';
 
 @Controller('account')
 export class AccountController {
@@ -81,7 +82,7 @@ export class AccountController {
       : authToken;
 
     // Extract user ID from token
-    const userId = this.accountService.decodeToken(token);
+    const userId = stringify(this.accountService.decodeToken(token));
 
     await this.accountService.changePassword(changePasswordDto, userId);
 

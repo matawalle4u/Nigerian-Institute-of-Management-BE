@@ -136,28 +136,21 @@ export class AccountService {
     authorizationHeader: string,
   ): Promise<void> {
     const { newPassword } = changePasswordDto;
-    // Ensure the Authorization header is provided
     if (!authorizationHeader) {
       throw new BadRequestException('Authorization header is missing');
     }
-    // Extract the token from the Authorization header
     const token = authorizationHeader.split(' ')[1]; // Assuming 'Bearer <token>'
     if (!token) {
       throw new BadRequestException('Invalid Authorization header format');
     }
-    // Decode the token to get the user ID
     const decoded = this.decodeToken(token);
-    const userId = parseInt(decoded.userId, 10); // Convert userId to a number
-    //const userId = decoded.userId;
-    // Find the user by ID
+    const userId = parseInt(decoded.userId, 10);
     const user = await this.loginRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    // Hash the new password
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
-    // Save the updated user
     await this.loginRepository.save(user);
   }
   decodeToken(token: string): { userId: string } {
