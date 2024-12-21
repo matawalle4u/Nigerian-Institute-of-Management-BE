@@ -80,8 +80,8 @@ export class AccountController {
       ? authToken.slice(7)
       : authToken;
 
-    // Extract user ID from token (Assuming you have a token decoding method)
-    const userId = this.accountService.decodeToken(token); // Implement decodeToken in the service
+    // Extract user ID from token
+    const userId = this.accountService.decodeToken(token);
 
     await this.accountService.changePassword(
       userId,
