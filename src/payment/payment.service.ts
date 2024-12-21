@@ -7,7 +7,8 @@ import { Payment } from './entities/payment.entity';
 import { Login } from '../account/entities/login.entity';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 import { PaystackResponse, PaymentData } from './dto/paystack.dto';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
+import { AxiosResponse } from '../types/axios-response.type';
 
 @Injectable()
 export class PaymentService {
