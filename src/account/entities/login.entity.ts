@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { Members } from 'src/membership/entities/membership.entity';
 
 @Entity('login')
 export class Login {
@@ -35,4 +37,6 @@ export class Login {
   activation_token: string | null;
   @CreateDateColumn()
   date: Date;
+  @OneToOne(() => Members, (member) => member.loginId, { cascade: true })
+  member: Members;
 }
