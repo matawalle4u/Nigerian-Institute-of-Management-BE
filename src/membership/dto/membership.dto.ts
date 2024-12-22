@@ -6,28 +6,46 @@ import {
   IsString,
   IsDateString,
 } from 'class-validator';
+import { Members } from '../entities/membership.entity';
 
 export class MembershipDto {
-  @ApiProperty({ example: 1, description: 'Unique identifier for the member' })
+  @ApiProperty({
+    example: 1,
+    description: 'Unique identifier for the member',
+    required: true,
+  })
   @IsNumber()
   id: number;
 
   @ApiProperty({
     example: 101,
     description: 'Login ID associated with the member',
+    required: true,
   })
   @IsNumber()
-  loginId: number;
+  loginId: Members;
 
-  @ApiProperty({ example: 'MEM12345', description: 'Unique member number' })
+  @ApiProperty({
+    example: 'MEM12345',
+    description: 'Unique member number',
+    required: true,
+  })
   @IsString()
   memberNo: string;
 
-  @ApiProperty({ example: 'John', description: 'First name of the member' })
+  @ApiProperty({
+    example: 'John',
+    description: 'First name of the member',
+    required: true,
+  })
   @IsString()
   firstName: string;
 
-  @ApiProperty({ example: 'Doe', description: 'Last name of the member' })
+  @ApiProperty({
+    example: 'Doe',
+    description: 'Last name of the member',
+    required: true,
+  })
   @IsString()
   lastName: string;
 
