@@ -1,5 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Login } from 'src/account/entities/login.entity';
 
 @Entity('members')
 export class Members {
@@ -7,12 +14,9 @@ export class Members {
   @ApiProperty({ example: 1, description: 'Unique identifier for the member' })
   id: number;
 
-  @Column()
-  @ApiProperty({
-    example: 101,
-    description: 'Login ID associated with the member',
-  })
-  loginId: number;
+  @OneToOne(() => Login, (login) => login.member, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  loginId: Login;
 
   @Column()
   @ApiProperty({ example: 'MEM12345', description: 'Unique member number' })
