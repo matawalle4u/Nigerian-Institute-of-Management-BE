@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
-
+import { MembershipDto } from './dto/membership.dto';
 @Injectable()
 export class MembershipService {
   constructor(
@@ -10,8 +10,8 @@ export class MembershipService {
     private readonly memberRepository: Repository<Members>,
   ) {}
 
-  async create(memberData: Partial<Members>): Promise<Members> {
-    const member = this.memberRepository.create(memberData);
+  async create(memberDto: MembershipDto): Promise<Members> {
+    const member = this.memberRepository.create(memberDto);
     return this.memberRepository.save(member);
   }
 
@@ -20,7 +20,11 @@ export class MembershipService {
   }
 
   async findOne(id: number): Promise<Members> {
-    return this.memberRepository.findOne({ where: { id } });
+    const member = this.memberRepository.findOne({
+      where: { id },
+      relations: ['loginId'],
+    });
+    return member;
   }
 
   async update(id: number, updateData: Partial<Members>): Promise<Members> {
