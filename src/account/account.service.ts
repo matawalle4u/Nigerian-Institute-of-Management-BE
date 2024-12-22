@@ -96,6 +96,7 @@ export class AccountService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.loginRepository.findOne({
       where: [{ email: email }, { password: hashedPassword }],
+      relations: ['member'],
     });
 
     if (!user) {
@@ -104,7 +105,13 @@ export class AccountService {
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
-    return { accessToken, user };
+    return {
+      accessToken,
+      user: {
+        ...user,
+        member: user.member, // Include member details in the response
+      },
+    };
   }
 
   async fetchUserInfo(authToken: string): Promise<any> {
@@ -112,20 +119,12 @@ export class AccountService {
       const payload = this.jwtService.verify(authToken);
       const user = await this.loginRepository.findOne({
         where: { email: payload.email, status: 'active' },
+        relations: ['member'],
       });
       if (!user) {
         throw new UnauthorizedException('Invalid or expired token');
       }
-      const userInfo = {
-        membershipId: user.id,
-        membershipGrade: user.authority,
-        membershipChapter: 'Default Chapter', // Replace with actual logic
-        outstandingDue: 0, // TODO Replace with actual logic
-        name: user.username,
-        email: user.email,
-        status: user.status,
-      };
-      return userInfo;
+      return user.member;
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
