@@ -10,6 +10,7 @@ import {
 import { MembershipService } from './membership.service';
 import { Members } from './entities/membership.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { MembershipDto } from './dto/membership.dto';
 
 @ApiTags('members')
 @Controller('members')
@@ -46,8 +47,8 @@ export class MembershipController {
     description: 'Member created successfully',
     type: Members,
   })
-  create(@Body() memberData: Partial<Members>) {
-    return this.membershipService.create(memberData);
+  create(@Body() memberDto: MembershipDto) {
+    return this.membershipService.create(memberDto);
   }
 
   @Get()
