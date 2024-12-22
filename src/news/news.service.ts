@@ -17,6 +17,13 @@ export class NewsService {
     const news = this.newsRepository.create(createNewsDto);
     return this.newsRepository.save(news);
   }
+  async findAll(): Promise<News[]> {
+    return this.newsRepository.find();
+  }
+
+  async findOne(id: number): Promise<News> {
+    return this.newsRepository.findOne({ where: { id } });
+  }
 
   async updateNews(id: number, updateNewsDto: UpdateNewsDto): Promise<News> {
     const news = await this.newsRepository.findOne({ where: { id } });
