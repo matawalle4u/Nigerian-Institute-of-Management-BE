@@ -7,10 +7,7 @@ async function bootstrap() {
 
   //CORS enabling
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://nigerian-institute-of-management-be.onrender.com/',
-    ],
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
