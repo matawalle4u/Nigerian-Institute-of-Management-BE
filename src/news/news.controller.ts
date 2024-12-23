@@ -49,8 +49,8 @@ export class NewsController {
     return { message: 'News deleted successfully' };
   }
 
-  //   @Get()
-  //   async searchNews(@Query() searchNewsDto: SearchNewsDto) {
-  //     return this.newsService.searchNews(searchNewsDto);
-  //   }
+  @Get('search-news')
+  async searchNews(@Query() searchNewsDto: SearchNewsDto) {
+    return this.newsService.searchNews(searchNewsDto);
+  }
 }
