@@ -8,6 +8,7 @@ import { GradeModule } from './grade/grade.module';
 import { MembershipModule } from './membership/membership.module';
 import { PublicationModule } from './publication/publication.module';
 import { NewsModule } from './news/news.module';
+import { LicenseModule } from './license/license.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { NewsModule } from './news/news.module';
     MembershipModule,
     PublicationModule,
     NewsModule,
+    LicenseModule,
   ],
 })
 export class AppModule {}
