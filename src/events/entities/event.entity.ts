@@ -14,6 +14,12 @@ export class Event {
   @Column({ type: 'timestamp' })
   date: Date;
 
+  @Column()
+  price: number;
+
+  @Column()
+  mode: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
