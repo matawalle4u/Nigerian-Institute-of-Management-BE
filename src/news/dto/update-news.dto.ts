@@ -27,4 +27,13 @@ export class UpdateNewsDto {
     required: false,
   })
   author?: string;
+
+  @ApiProperty({
+    description: 'Image file URL or path',
+    example: 'https://example.com/image.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  image?: string;
 }

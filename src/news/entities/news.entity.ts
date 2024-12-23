@@ -18,4 +18,7 @@ export class News {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  image: string;
 }

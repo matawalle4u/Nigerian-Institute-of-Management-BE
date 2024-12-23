@@ -43,4 +43,13 @@ export class CreateEventDto {
   })
   @IsString()
   mode: string;
+
+  @ApiProperty({
+    description: 'Image file URL or path',
+    example: 'https://example.com/image.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  image?: string;
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateNewsDto {
   @IsNotEmpty()
@@ -27,4 +27,13 @@ export class CreateNewsDto {
     required: false,
   })
   author: string;
+
+  @ApiProperty({
+    description: 'Image file URL or path',
+    example: 'https://example.com/image.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  image?: string;
 }

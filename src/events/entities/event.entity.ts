@@ -25,4 +25,7 @@ export class Event {
 
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  image: string;
 }
