@@ -28,4 +28,12 @@ export class InitiatePaymentDto {
   @IsString()
   @IsNotEmpty()
   callbackUrl: string;
+
+  @ApiProperty({
+    description: 'Description of the payment',
+    example: 'Payment for Membership upgrade',
+  })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
 }
