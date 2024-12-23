@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsDateString,
+  IsNumber,
 } from 'class-validator';
 export class CreateEventDto {
   @ApiProperty({
@@ -28,4 +29,18 @@ export class CreateEventDto {
   })
   @IsDateString()
   date: string;
+
+  @ApiProperty({
+    description: 'Event Price',
+    example: 50000,
+  })
+  @IsNumber()
+  price: number;
+
+  @ApiProperty({
+    description: 'Event Mode',
+    example: 'Virtual',
+  })
+  @IsString()
+  mode: string;
 }
