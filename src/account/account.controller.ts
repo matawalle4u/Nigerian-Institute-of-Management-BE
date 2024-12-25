@@ -29,7 +29,7 @@ export class AccountController {
       validateMembershipDto.membership,
       validateMembershipDto.nameOrDob,
     );
-    return { success: true, userId: user.id };
+    return user;
   }
 
   @Post('signup')

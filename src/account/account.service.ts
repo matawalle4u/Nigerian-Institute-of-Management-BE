@@ -30,7 +30,7 @@ export class AccountService {
   async validateMembership(
     membership: string,
     nameOrDob: string,
-  ): Promise<Members> {
+  ): Promise<string | null> {
     const nameParts = nameOrDob.split(' ');
     const isFullName = nameParts.length > 1;
 
@@ -54,7 +54,9 @@ export class AccountService {
       );
     }
 
-    return user;
+    const payload = { memberId: user.id, memberNo: user.memberNo };
+    return this.jwtService.sign(payload, { expiresIn: '15m' });
+    // return user;
   }
 
   async createUser(signupDto: SignupDto): Promise<Login> {
