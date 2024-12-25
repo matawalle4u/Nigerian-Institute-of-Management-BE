@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Login } from './entities/login.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { SignupDto } from './dto/signup.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 import * as jwt from 'jsonwebtoken';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -59,7 +59,7 @@ export class AccountService {
     // return user;
   }
 
-  async createUser(signupDto: SignupDto): Promise<Login> {
+  async createUser(signupDto: CreateUserDto): Promise<Login> {
     const { username, email, password } = signupDto;
 
     const existingUser = await this.loginRepository.findOne({
@@ -91,6 +91,31 @@ export class AccountService {
     }
   }
 
+  async signup({
+    token,
+    password,
+  }: {
+    token: string;
+    password: string;
+  }): Promise<void> {
+    const payload = this.jwtService.verify(token);
+    const { memberId } = payload;
+
+    const member = await this.memberRepository.findOne({
+      where: { id: memberId },
+    });
+    if (!member) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const login = new Login();
+    login.member = member;
+    login.password = hashedPassword;
+
+    await this.loginRepository.save(login);
+  }
+
   async login(
     email: string,
     password: string,
@@ -111,7 +136,7 @@ export class AccountService {
       accessToken,
       user: {
         ...user,
-        member: user.member, // Include member details in the response
+        member: user.member,
       },
     };
   }
