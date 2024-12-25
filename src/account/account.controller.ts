@@ -15,6 +15,7 @@ import { ValidateMembershipDto } from './dto/validate-membership.dto';
 import { ApiBody } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { stringify } from 'querystring';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('account')
 export class AccountController {
@@ -34,8 +35,14 @@ export class AccountController {
 
   @Post('signup')
   @HttpCode(201)
-  async createAccount(@Body() signupDto: SignupDto) {
-    return this.accountService.createUser(signupDto);
+  async signup(@Body() signupDto: SignupDto) {
+    return this.accountService.signup(signupDto);
+  }
+
+  @Post('create-user')
+  @HttpCode(201)
+  async createAccount(@Body() createUserDto: CreateUserDto) {
+    return this.accountService.createUser(createUserDto);
   }
 
   @Post('login')
