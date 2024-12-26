@@ -13,16 +13,6 @@ export class SignupDto {
     description: 'Username',
     example: 'adam4u',
   })
-  @IsString()
-  username: string;
-  @ApiProperty({
-    description: 'A valid authorization token',
-    example: 'Generated token during validation',
-  })
-  @IsNotEmpty()
-  @IsString()
-  token: string;
-
   @ApiProperty({
     description: 'User Login Password',
     example: 'Password123456!',

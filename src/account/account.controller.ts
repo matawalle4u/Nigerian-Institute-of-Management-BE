@@ -35,8 +35,17 @@ export class AccountController {
 
   @Post('signup')
   @HttpCode(201)
-  async signup(@Body() signupDto: SignupDto) {
-    return this.accountService.signup(signupDto);
+  async signup(
+    @Headers('Authorization') authToken: string,
+    @Body() signupDto: SignupDto,
+  ) {
+    if (!authToken) {
+      throw new HttpException(
+        'Authorization token is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.accountService.signup(authToken, signupDto);
   }
 
   @Post('create-user')
@@ -48,7 +57,7 @@ export class AccountController {
   @Post('login')
   @HttpCode(201)
   async login(@Body() signinDto: SigninDto) {
-    return this.accountService.login(signinDto.email, signinDto.password);
+    return this.accountService.login(signinDto);
   }
 
   @Get('fetch-info')

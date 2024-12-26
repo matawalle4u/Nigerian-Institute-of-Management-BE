@@ -15,6 +15,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 import * as jwt from 'jsonwebtoken';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { SignupDto } from './dto/signup.dto';
+import { SigninDto } from './dto/signin.dto';
 
 @Injectable()
 export class AccountService {
@@ -96,15 +98,12 @@ export class AccountService {
     }
   }
 
-  async signup({
-    token,
-    password,
-  }: {
-    token: string;
-    password: string;
-  }): Promise<void> {
+  async signup(token: string, signupDto: SignupDto): Promise<void> {
+    const { email } = signupDto;
+
     const payload = this.jwtService.verify(token);
-    const { memberId } = payload;
+    const { memberId, memberNo } = payload;
+    // console.log(payload, email);
 
     const member = await this.memberRepository.findOne({
       where: { id: memberId },
@@ -113,23 +112,42 @@ export class AccountService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
     const login = new Login();
     login.member = member;
     login.password = hashedPassword;
-    login.username = payload.memberNo;
-    console.log(payload);
+    login.username = memberNo; // Use the member number from the token payload
+    login.email = email;
 
-    await this.loginRepository.save(login);
+    await this.loginRepository.save(login); //TODO handle error
+
+    // const payload = this.jwtService.verify(token);
+    // const { memberId } = payload;
+
+    // const member = await this.memberRepository.findOne({
+    //   where: { id: memberId },
+    // });
+    // if (!member) {
+    //   throw new UnauthorizedException('Invalid token');
+    // }
+
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // const login = new Login();
+    // login.member = member;
+    // login.password = hashedPassword;
+    // login.username = payload.memberNo;
+    // console.log(payload);
+
+    // await this.loginRepository.save(login);
   }
 
   async login(
-    email: string,
-    password: string,
+    signinDto: SigninDto,
   ): Promise<{ accessToken: string; user: Login }> {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(signinDto.password, 10);
+    // console.log(hashedPassword);
     const user = await this.loginRepository.findOne({
-      where: [{ email: email }, { password: hashedPassword }],
+      where: { email: signinDto.email, password: hashedPassword },
       relations: ['member'],
     });
 
