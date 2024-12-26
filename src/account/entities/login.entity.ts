@@ -13,7 +13,7 @@ export class Login {
   id: number;
   @Column({ length: 32 })
   username: string;
-  @Column({ length: 64 })
+  @Column({ length: 64, nullable: false, unique: true })
   email: string;
   @Column({ length: 128, select: false }) // Password should not be selected by default
   password: string;

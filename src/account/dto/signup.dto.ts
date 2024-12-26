@@ -1,7 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class SignupDto {
+  @ApiProperty({
+    description: 'A valid email of the user',
+    example: 'adam@byteflow.com.ng',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    description: 'Username',
+    example: 'adam4u',
+  })
+  @IsString()
+  username: string;
   @ApiProperty({
     description: 'A valid authorization token',
     example: 'Generated token during validation',

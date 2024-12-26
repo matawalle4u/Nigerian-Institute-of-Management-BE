@@ -30,7 +30,7 @@ export class AccountService {
   async validateMembership(
     membership: string,
     nameOrDob: string,
-  ): Promise<string | null> {
+  ): Promise<{ accessToken: string; user: Members }> {
     const nameParts = nameOrDob.split(' ');
     const isFullName = nameParts.length > 1;
 
@@ -55,8 +55,13 @@ export class AccountService {
     }
 
     const payload = { memberId: user.id, memberNo: user.memberNo };
-    return this.jwtService.sign(payload, { expiresIn: '15m' });
-    // return user;
+    const token = this.jwtService.sign(payload, { expiresIn: '15m' });
+    return {
+      accessToken: token,
+      user: {
+        ...user,
+      },
+    };
   }
 
   async createUser(signupDto: CreateUserDto): Promise<Login> {
@@ -112,6 +117,8 @@ export class AccountService {
     const login = new Login();
     login.member = member;
     login.password = hashedPassword;
+    login.username = payload.memberNo;
+    console.log(payload);
 
     await this.loginRepository.save(login);
   }

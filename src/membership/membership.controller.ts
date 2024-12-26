@@ -48,7 +48,14 @@ export class MembershipController {
     type: Members,
   })
   create(@Body() memberDto: MembershipDto) {
-    return this.membershipService.create(memberDto);
+    try {
+      const member = this.membershipService.create(memberDto);
+      if (member) {
+        return memberDto;
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
   @Get()
