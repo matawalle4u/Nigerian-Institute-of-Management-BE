@@ -103,8 +103,6 @@ export class AccountService {
 
     const payload = this.jwtService.verify(token);
     const { memberId, memberNo } = payload;
-    // console.log(payload, email);
-
     const member = await this.memberRepository.findOne({
       where: { id: memberId },
     });
@@ -118,34 +116,16 @@ export class AccountService {
     login.password = hashedPassword;
     login.username = memberNo; // Use the member number from the token payload
     login.email = email;
-
-    await this.loginRepository.save(login); //TODO handle error
-
-    // const payload = this.jwtService.verify(token);
-    // const { memberId } = payload;
-
-    // const member = await this.memberRepository.findOne({
-    //   where: { id: memberId },
-    // });
-    // if (!member) {
-    //   throw new UnauthorizedException('Invalid token');
-    // }
-
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // const login = new Login();
-    // login.member = member;
-    // login.password = hashedPassword;
-    // login.username = payload.memberNo;
-    // console.log(payload);
-
-    // await this.loginRepository.save(login);
+    const savedLogin = await this.loginRepository.save(login);
+    member.loginId = savedLogin;
+    await this.memberRepository.save(member);
   }
 
   async login(
     signinDto: SigninDto,
   ): Promise<{ accessToken: string; user: Login }> {
     const hashedPassword = await bcrypt.hash(signinDto.password, 10);
-    // console.log(hashedPassword);
+    console.log(signinDto.password, hashedPassword);
     const user = await this.loginRepository.findOne({
       where: { email: signinDto.email, password: hashedPassword },
       relations: ['member'],
@@ -173,6 +153,7 @@ export class AccountService {
         where: { email: payload.email, status: 'active' },
         relations: ['member'],
       });
+      console.log(user);
       if (!user) {
         throw new UnauthorizedException('Invalid or expired token');
       }
@@ -213,3 +194,5 @@ export class AccountService {
     }
   }
 }
+// TODO
+// 1. Fetch-info member returns null
