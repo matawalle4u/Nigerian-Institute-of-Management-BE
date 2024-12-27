@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +12,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
-import * as jwt from 'jsonwebtoken';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
@@ -57,7 +55,7 @@ export class AccountService {
     }
 
     const payload = { memberId: user.id, memberNo: user.memberNo };
-    const token = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const token = this.jwtService.sign(payload, { expiresIn: '30m' });
     return {
       accessToken: token,
       user: {
@@ -129,7 +127,7 @@ export class AccountService {
       relations: ['member'],
     });
     if (!loginDetails) {
-      throw new InternalServerErrorException('Invalid email!');
+      throw new NotFoundException('User not found');
     }
     const isMatch = await bcrypt.compare(
       signinDto.password,
@@ -157,9 +155,8 @@ export class AccountService {
         where: { email: payload.email, status: 'active' },
         relations: ['member'],
       });
-      console.log(user);
       if (!user) {
-        throw new UnauthorizedException('Invalid or expired token');
+        throw new NotFoundException('User not found');
       }
       return user.member;
     } catch (error) {
@@ -168,33 +165,23 @@ export class AccountService {
   }
 
   async changePassword(
+    authToken: string,
     changePasswordDto: ChangePasswordDto,
-    authorizationHeader: string,
-  ): Promise<void> {
-    const { newPassword } = changePasswordDto;
-    if (!authorizationHeader) {
-      throw new BadRequestException('Authorization header is missing');
-    }
-    const token = authorizationHeader.split(' ')[1]; // Assuming 'Bearer <token>'
-    if (!token) {
-      throw new BadRequestException('Invalid Authorization header format');
-    }
-    const decoded = this.decodeToken(token);
-    const userId = parseInt(decoded.userId, 10);
-    const user = await this.loginRepository.findOne({ where: { id: userId } });
+  ): Promise<any> {
+    const payload = this.jwtService.verify(authToken);
+    const user = await this.loginRepository.findOne({
+      where: { email: payload.email },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedNewPassword;
-    await this.loginRepository.save(user);
-  }
-  decodeToken(token: string): { userId: string } {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-      return { userId: decoded.sub }; // Assuming `sub` contains the user ID
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+
+    const newHashedPassword = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      10,
+    );
+    user.password = newHashedPassword;
+    this.loginRepository.save(user);
+    return user;
   }
 }
