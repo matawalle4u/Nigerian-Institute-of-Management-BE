@@ -128,7 +128,9 @@ export class AccountService {
       where: { email: signinDto.email },
       relations: ['member'],
     });
-
+    if (!loginDetails) {
+      throw new InternalServerErrorException('Invalid email!');
+    }
     const isMatch = await bcrypt.compare(
       signinDto.password,
       loginDetails.password,
