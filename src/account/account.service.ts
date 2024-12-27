@@ -127,14 +127,18 @@ export class AccountService {
     const hashedPassword = await bcrypt.hash(signinDto.password, 10);
     console.log(signinDto.password, hashedPassword);
     const user = await this.loginRepository.findOne({
-      where: { email: signinDto.email, password: hashedPassword },
+      where: { email: signinDto.email },
       relations: ['member'],
     });
 
     if (!user) {
       throw new InternalServerErrorException('Invalid Credentials');
     }
+    // const isMatch = await bcrypt.compare(signinDto.password, user.password);
 
+    // if (!isMatch) {
+    //   throw new InternalServerErrorException('Invalid Credentials');
+    // }
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
     return {
@@ -194,5 +198,3 @@ export class AccountService {
     }
   }
 }
-// TODO
-// 1. Fetch-info member returns null
