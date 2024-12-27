@@ -124,8 +124,6 @@ export class AccountService {
   async login(
     signinDto: SigninDto,
   ): Promise<{ accessToken: string; user: Login }> {
-    const hashedPassword = await bcrypt.hash(signinDto.password, 10);
-    console.log(signinDto.password, hashedPassword);
     const loginDetails = await this.loginRepository.findOne({
       where: { email: signinDto.email },
       relations: ['member'],
@@ -134,11 +132,14 @@ export class AccountService {
     if (!loginDetails) {
       throw new InternalServerErrorException('Invalid Credentials');
     }
-    // const isMatch = await bcrypt.compare(signinDto.password, user.password);
+    const isMatch = await bcrypt.compare(
+      signinDto.password,
+      loginDetails.password,
+    );
 
-    // if (!isMatch) {
-    //   throw new InternalServerErrorException('Invalid Credentials');
-    // }
+    if (!isMatch) {
+      throw new InternalServerErrorException('Invalid Credentials');
+    }
     const payload = { sub: loginDetails.id, email: loginDetails.email };
     const accessToken = this.jwtService.sign(payload);
     return {
