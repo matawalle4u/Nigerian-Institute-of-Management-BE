@@ -11,6 +11,7 @@ import { MembershipService } from './membership.service';
 import { Members } from './entities/membership.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { MembershipDto } from './dto/membership.dto';
+import { SearchMemberDto } from './dto/search-querry.dto';
 
 @ApiTags('members')
 @Controller('members')
@@ -67,6 +68,11 @@ export class MembershipController {
   })
   findAll() {
     return this.membershipService.findAll();
+  }
+
+  @Post('search')
+  search(@Body() searchQuerry: SearchMemberDto) {
+    return this.membershipService.searchMembership(searchQuerry);
   }
 
   @Get(':id')
