@@ -129,9 +129,6 @@ export class AccountService {
       relations: ['member'],
     });
 
-    if (!loginDetails) {
-      throw new InternalServerErrorException('Invalid Credentials');
-    }
     const isMatch = await bcrypt.compare(
       signinDto.password,
       loginDetails.password,
