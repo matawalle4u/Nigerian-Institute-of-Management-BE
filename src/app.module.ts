@@ -10,9 +10,15 @@ import { PublicationModule } from './publication/publication.module';
 import { NewsModule } from './news/news.module';
 import { LicenseModule } from './license/license.module';
 import { NimEventsModule } from './events/events.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
