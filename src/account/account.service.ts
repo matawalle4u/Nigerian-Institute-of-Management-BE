@@ -170,32 +170,26 @@ export class AccountService {
   async fetchUserInfo(authToken: string): Promise<any> {
     try {
       const payload = this.jwtService.verify(authToken);
-
-      // Ensure the payload contains valid fields
-      if (!payload.sub || !payload.email) {
-        throw new UnauthorizedException('Invalid token payload');
-      }
-
-      // Fetch user by ID for reliability
       const user = await this.loginRepository.findOne({
-        where: { id: payload.sub, status: 'active' },
+        where: { email: payload.email, status: 'active' }, //this has no payload.email if you use the validate token
         relations: ['member'],
       });
-      console.log(user);
+      console.log(payload, user);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-
-      if (user.email !== payload.email) {
-        throw new UnauthorizedException('Token email mismatch');
-      }
-
-      return user.member;
+      return {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        member: {
+          ...user.member,
+        },
+      };
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
   }
-
   async changePassword(
     authToken: string,
     changePasswordDto: ChangePasswordDto,
