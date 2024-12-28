@@ -17,7 +17,7 @@ export class Publication {
   description: string;
 
   @Column({ length: 255 })
-  author: string;
+  file: string;
 
   @CreateDateColumn()
   publishedAt: Date;

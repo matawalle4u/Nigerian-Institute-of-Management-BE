@@ -1,5 +1,8 @@
-// src/publication/publication.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Publication } from './entities/publication.entity';
@@ -15,8 +18,24 @@ export class PublicationService {
 
   async create(
     createPublicationDto: CreatePublicationDto,
+    file: Express.Multer.File,
   ): Promise<Publication> {
-    const publication = this.publicationRepository.create(createPublicationDto);
+    if (!file) {
+      throw new BadRequestException('A valid file is required');
+    }
+    const allowedMimeTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Only .docx and .pdf files are allowed');
+    }
+    // Create publication entity
+    const publication = this.publicationRepository.create({
+      ...createPublicationDto,
+      file: file.path, // Save the file path in the entity
+    });
+    //const publication = this.publicationRepository.create(createPublicationDto);
     return await this.publicationRepository.save(publication);
   }
 

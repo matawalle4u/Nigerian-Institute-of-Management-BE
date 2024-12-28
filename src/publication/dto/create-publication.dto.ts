@@ -17,12 +17,4 @@ export class CreatePublicationDto {
   @IsString()
   @IsNotEmpty()
   description: string;
-
-  @ApiProperty({
-    description: 'File location',
-    example: 'Example file location',
-  })
-  @IsString()
-  @IsNotEmpty()
-  file: string;
 }
