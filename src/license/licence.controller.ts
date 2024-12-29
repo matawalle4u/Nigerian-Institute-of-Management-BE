@@ -7,6 +7,7 @@ import {
   Delete,
   Get,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { LicenseService } from './license.service';
@@ -53,5 +54,14 @@ export class LicenseController {
     @Query() searchDto: SearchLicenseDto,
   ): Promise<License[]> {
     return this.licenseService.searchLicense(searchDto);
+  }
+
+  @Get('user/:userId')
+  async getLicenseByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    const license = await this.licenseService.getLicenseByUserId(userId);
+    if (!license) {
+      return { message: 'License not found for the specified user ID' };
+    }
+    return license;
   }
 }
