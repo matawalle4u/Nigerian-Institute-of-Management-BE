@@ -77,13 +77,17 @@ export class PaymentController {
     // Process the event
     if (event.event === 'charge.success') {
       const paymentReference = event.data.reference;
-      const paymentStatus = 'success'; // 'success'
+      const paymentStatus = event.data.status;
 
       // Update the payment record in the database
-      await this.paymentService.updatePaymentStatus(
-        paymentReference,
-        paymentStatus,
-      );
+      if (paymentStatus === 'success' || paymentStatus === 'fail') {
+        await this.paymentService.updatePaymentStatus(
+          paymentReference,
+          paymentStatus,
+        );
+      } else {
+        console.warn(`Unexpected payment status: ${paymentStatus}`);
+      }
     }
 
     res.status(200).send('Webhook received');
