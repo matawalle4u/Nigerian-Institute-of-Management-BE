@@ -1,5 +1,3 @@
-// src/payment/payment.entity.ts
-
 import { Entity, PrimaryColumn, Column, ManyToOne } from 'typeorm';
 import { Login } from 'src/account/entities/login.entity';
 
@@ -8,10 +6,10 @@ export class Payment {
   @PrimaryColumn({ type: 'char', length: 18 })
   paymentId: string;
 
-  @Column({ type: 'int', unsigned: true })
-  payers: number;
+  @ManyToOne(() => Login, (login) => login.payments)
+  payers: Login;
 
-  @Column({ type: 'int', unsigned: true })
+  @Column('decimal', { precision: 10, scale: 2 })
   amount: number;
 
   @Column({ type: 'enum', enum: ['fail', 'success'], nullable: true })
@@ -20,9 +18,9 @@ export class Payment {
   @Column({ type: 'text', nullable: true })
   otherInfo: string | null;
 
-  @Column({ type: 'datetime' })
-  date: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-  @ManyToOne(() => Login, (user) => user.id)
-  user: Login;
+  @Column({ type: 'timestamp', nullable: true })
+  updatedAt: Date;
 }
