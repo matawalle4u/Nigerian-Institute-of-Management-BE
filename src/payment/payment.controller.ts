@@ -6,7 +6,16 @@ import {
 } from './dto/payment-history.dto';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
+import { createHmac } from 'crypto';
+import { Response } from 'express';
 
+interface PaystackEvent {
+  event: string;
+  data: {
+    reference: string;
+    status: string;
+  };
+}
 @Controller('payment')
 export class PaymentController {
   paystackWebhookSecret: any;
@@ -51,25 +60,24 @@ export class PaymentController {
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    const secret = this.paystackWebhookSecret; // Set this in your environment variables
+    const secret = process.env.PAYSTACK_SECRET_KEY;
 
     // Verify the webhook signature
     const signature = req.headers['x-paystack-signature'] as string;
-    const expectedSignature = crypto
-      .createHmac('sha512', secret)
+    const expectedSignature = createHmac('sha512', secret)
       .update(JSON.stringify(req.body))
       .digest('hex');
 
     if (signature !== expectedSignature) {
-      return res.status(400).send('Invalid signature');
+      res.status(400).send('Invalid signature');
     }
-
-    const event = req.body;
+    const event = req.body as unknown as PaystackEvent;
+    //const event = req.body;
 
     // Process the event
     if (event.event === 'charge.success') {
       const paymentReference = event.data.reference;
-      const paymentStatus = event.data.status; // 'success'
+      const paymentStatus = 'success'; // 'success'
 
       // Update the payment record in the database
       await this.paymentService.updatePaymentStatus(
@@ -80,5 +88,4 @@ export class PaymentController {
 
     res.status(200).send('Webhook received');
   }
-
 }
