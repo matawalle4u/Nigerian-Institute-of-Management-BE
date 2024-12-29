@@ -78,4 +78,11 @@ export class LicenseService {
       relations: ['login', 'login.member'],
     });
   }
+
+  async getLicenseByUserId(userId: number): Promise<License | null> {
+    return this.licenseRepository.findOne({
+      where: { login: { id: userId } },
+      relations: ['login'],
+    });
+  }
 }
