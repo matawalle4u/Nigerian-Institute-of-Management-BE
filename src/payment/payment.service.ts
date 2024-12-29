@@ -133,4 +133,21 @@ export class PaymentService {
       );
     }
   }
+
+  async updatePaymentStatus(
+    reference: string,
+    status: 'success' | 'fail',
+  ): Promise<void> {
+    const payment = await this.paymentRepository.findOne({
+      where: { paymentId: reference },
+    });
+
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
+
+    payment.status = status;
+
+    await this.paymentRepository.save(payment);
+  }
 }
