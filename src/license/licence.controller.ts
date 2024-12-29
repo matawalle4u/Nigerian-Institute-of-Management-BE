@@ -8,6 +8,7 @@ import {
   Get,
   Query,
   ParseIntPipe,
+  Headers,
 } from '@nestjs/common';
 
 import { LicenseService } from './license.service';
@@ -22,8 +23,12 @@ export class LicenseController {
   constructor(private readonly licenseService: LicenseService) {}
 
   @Post()
-  async addLicense(@Body() createLicenseDto: CreateLicenseDto) {
-    return this.licenseService.addLicense(createLicenseDto);
+  async addLicense(
+    @Headers('Authorization') authToken: string,
+    @Body() createLicenseDto: CreateLicenseDto,
+  ) {
+    //check if the user has the license or not using login token.
+    return this.licenseService.addLicense(authToken, createLicenseDto);
   }
   @Get()
   findAll() {
