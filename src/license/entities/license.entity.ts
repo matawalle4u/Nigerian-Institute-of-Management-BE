@@ -15,9 +15,9 @@ export class License {
   @JoinColumn()
   login: Login;
 
-  @Column({ name: 'license_no', type: 'varchar', length: 32, nullable: true })
+  @Column({ name: 'license_no', type: 'varchar', length: 32, unique: true })
   licenseNo?: string;
 
-  @Column({ type: 'datetime' })
-  date: Date;
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }
