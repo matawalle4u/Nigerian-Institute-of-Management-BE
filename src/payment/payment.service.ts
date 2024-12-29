@@ -30,14 +30,16 @@ export class PaymentService {
 
   async getOutstandingPayments(userId: number): Promise<Payment[]> {
     return this.paymentRepository.find({
-      where: { payers: userId, status: null },
-      select: ['date', 'otherInfo', 'amount'],
+      where: { payers: { id: userId }, status: null },
+      relations: ['payers'],
+      select: ['createdAt', 'otherInfo', 'amount'],
     });
   }
   async getPaymentHistory(userId: number): Promise<Payment[]> {
     return this.paymentRepository.find({
-      where: { payers: userId },
-      select: ['date', 'otherInfo', 'amount', 'status'],
+      where: { payers: { id: userId } },
+      relations: ['payers'],
+      select: ['createdAt', 'otherInfo', 'amount', 'status'],
     });
   }
 
@@ -59,7 +61,45 @@ export class PaymentService {
       throw new Error(response.data.message);
     }
 
-    return response.data.data;
+    const paymentData = response.data.data;
+
+    // Find the user based on the email address
+    const loginUser = await this.userRepository.findOne({
+      where: { email: initiatePaymentDto.email },
+    });
+    if (!loginUser) {
+      throw new Error('User not found');
+    }
+
+    // Create a new payment record
+    console.log(paymentData);
+    const payment = this.paymentRepository.create({
+      paymentId: paymentData.reference, // Use Paystack's reference as paymentId
+      payers: { id: loginUser.id }, // Assign the Login entity to payers
+      amount: initiatePaymentDto.amount,
+      status: null, // Status will be updated on webhook confirmation
+      otherInfo: initiatePaymentDto.description || null,
+    });
+
+    // Try to save the payment record
+    try {
+      await this.paymentRepository.save(payment);
+    } catch (error) {
+      // Log the error for debugging and tracking
+      console.error('Error saving payment to database:', error);
+      // Notify or retry logic (optional)
+      // Example: Notify admin via email, push notification, etc.
+
+      // Re-throw the error if necessary
+      throw new Error(
+        'Payment was initiated but failed to save in the database. Please contact support.',
+      );
+    }
+
+    // Return the payment data
+    return paymentData;
+
+    //return response.data.data;
   }
   /**
    * Verify a payment
