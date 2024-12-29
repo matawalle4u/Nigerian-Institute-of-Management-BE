@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import {
   PaymentHistoryDto,
@@ -9,6 +9,7 @@ import { VerifyPaymentDto } from './dto/verify-payment.dto';
 
 @Controller('payment')
 export class PaymentController {
+  paystackWebhookSecret: any;
   constructor(private readonly paymentService: PaymentService) {}
 
   @Get('outstanding/:userId')
@@ -45,4 +46,39 @@ export class PaymentController {
   async verifyPayment(@Body() verifyPaymentDto: VerifyPaymentDto) {
     return this.paymentService.verifyPayment(verifyPaymentDto.reference);
   }
+  @Post('/webhook')
+  async handlePaystackWebhook(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    const secret = this.paystackWebhookSecret; // Set this in your environment variables
+
+    // Verify the webhook signature
+    const signature = req.headers['x-paystack-signature'] as string;
+    const expectedSignature = crypto
+      .createHmac('sha512', secret)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
+
+    if (signature !== expectedSignature) {
+      return res.status(400).send('Invalid signature');
+    }
+
+    const event = req.body;
+
+    // Process the event
+    if (event.event === 'charge.success') {
+      const paymentReference = event.data.reference;
+      const paymentStatus = event.data.status; // 'success'
+
+      // Update the payment record in the database
+      await this.paymentService.updatePaymentStatus(
+        paymentReference,
+        paymentStatus,
+      );
+    }
+
+    res.status(200).send('Webhook received');
+  }
+
 }
