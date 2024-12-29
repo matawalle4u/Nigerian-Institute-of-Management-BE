@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Members } from 'src/membership/entities/membership.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Entity('login')
 export class Login {
@@ -39,4 +41,6 @@ export class Login {
   date: Date;
   @OneToOne(() => Members, (member) => member.loginId, { cascade: true })
   member: Members;
+  @OneToMany(() => Payment, (payment) => payment.payers)
+  payments: Payment[];
 }
