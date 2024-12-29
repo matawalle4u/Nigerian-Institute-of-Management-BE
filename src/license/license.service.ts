@@ -6,6 +6,8 @@ import { SearchLicenseDto } from './dto/search-license.dto';
 import { CreateLicenseDto } from './dto/create-license.dto';
 import { UpdateLicenseDto } from './dto/update-license.dto';
 import { Login } from 'src/account/entities/login.entity';
+import { JwtService } from '@nestjs/jwt';
+import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymentException';
 
 @Injectable()
 export class LicenseService {
@@ -14,16 +16,35 @@ export class LicenseService {
     private readonly licenseRepository: Repository<License>,
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async addLicense(createLicenseDto: CreateLicenseDto): Promise<License> {
+  async addLicense(
+    token: string,
+    createLicenseDto: CreateLicenseDto,
+  ): Promise<object> {
     // Find the associated login entity
+    const payload = this.jwtService.verify(token);
+    const { email } = payload;
+    //console.log(email);
+
     const login = await this.loginRepository.findOne({
-      where: { id: createLicenseDto.login }, // Assuming loginId is passed in the DTO
+      where: { email: email },
+      relations: ['member'],
     });
 
     if (!login) {
-      throw new Error('Login not found'); // Handle this as per your error handling strategy
+      throw new Error('Login not found');
+    }
+
+    //retrieve the member outstanding balance and prompt to pay
+    //console.log(login.member);
+    //console.log(login.member.cumulativeCp <= 0);
+
+    if (login.member.cumulativeCp <= 0) {
+      return new PaymentOutStandingException(
+        'Please pay all outstanding fees!',
+      );
     }
 
     const license = this.licenseRepository.create({
