@@ -17,7 +17,7 @@ export class PaymentController {
   ): Promise<OutstandingPaymentDto[]> {
     const payments = await this.paymentService.getOutstandingPayments(userId);
     return payments.map((payment) => ({
-      date: payment.date,
+      date: payment.createdAt,
       billName: payment.otherInfo || 'Unknown Bill',
       amount: payment.amount,
     }));
@@ -29,7 +29,7 @@ export class PaymentController {
   ): Promise<PaymentHistoryDto[]> {
     const payments = await this.paymentService.getPaymentHistory(userId);
     return payments.map((payment) => ({
-      date: payment.date,
+      date: payment.createdAt,
       billName: payment.otherInfo || 'Unknown Bill',
       description: payment.status || 'No Status',
       amount: payment.amount,
