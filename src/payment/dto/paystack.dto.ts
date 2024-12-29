@@ -15,4 +15,5 @@ export interface PaymentData {
   authorization_url: string; // URL to redirect user for payment
   access_code: string; // Access code for the transaction
   reference: string; // Unique transaction reference
+  amount: number;
 }
