@@ -60,7 +60,7 @@ export class PaymentController {
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    const secret = process.env.PAYSTACK_SECRET_KEY;
+    const secret = process.env.PAYSTACK_SECRET_KEY_TEST;
 
     // Verify the webhook signature
     const signature = req.headers['x-paystack-signature'] as string;
