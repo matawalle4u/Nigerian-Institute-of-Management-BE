@@ -13,7 +13,8 @@ import { AxiosResponse } from '../types/axios-response.type';
 @Injectable()
 export class PaymentService {
   private readonly paystackBaseUrl = 'https://api.paystack.co';
-  private readonly paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
+  private readonly paystackSecretKey = process.env.PAYSTACK_SECRET_KEY_TEST;
+  //private readonly paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
 
   /**
    * Initialize a payment
@@ -142,6 +143,7 @@ export class PaymentService {
       where: { paymentId: reference },
     });
 
+    console.log('Payment record:', payment);
     if (!payment) {
       throw new Error('Payment not found');
     }
