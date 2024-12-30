@@ -8,6 +8,7 @@ import { UpdateLicenseDto } from './dto/update-license.dto';
 import { Login } from 'src/account/entities/login.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymentException';
+import { Members } from 'src/membership/entities/membership.entity';
 
 @Injectable()
 export class LicenseService {
@@ -17,6 +18,8 @@ export class LicenseService {
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
     private readonly jwtService: JwtService,
+    @InjectRepository(Members)
+    private readonly memberRepository: Repository<Members>,
   ) {}
 
   async addLicense(
@@ -100,10 +103,39 @@ export class LicenseService {
     });
   }
 
-  async getLicenseByUserId(userId: number): Promise<License | null> {
-    return this.licenseRepository.findOne({
+  async getLicenseByUserId(token, userId: number): Promise<License | null> {
+    const payload = this.jwtService.verify(token);
+    const { email } = payload;
+    console.log(email);
+    //console.log(email);
+
+    const login = await this.loginRepository.findOne({
+      where: { email: email },
+    });
+
+    //console.log(login);
+
+    const licence = this.licenseRepository.findOne({
       where: { login: { id: userId } },
       relations: ['login'],
     });
+    const member = this.memberRepository.findOne({
+      where: { loginId: { id: (await licence).login.id } },
+      relations: ['loginId'],
+    });
+
+    member
+      .then((m) => {
+        if (!m.cumulativeCp) {
+          console.log('null');
+          throw new PaymentOutStandingException(
+            'Please pay all outstanding fees!',
+          );
+        }
+      })
+      .catch((r) => {
+        console.log(r);
+      });
+    return licence;
   }
 }
