@@ -193,4 +193,12 @@ export class Members {
     required: false,
   })
   passport?: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['active', 'expired'],
+    nullable: true,
+    default: 'expired',
+  })
+  licenseStatus: 'active' | 'expired';
 }

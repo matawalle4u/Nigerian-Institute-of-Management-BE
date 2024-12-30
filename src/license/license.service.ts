@@ -132,6 +132,8 @@ export class LicenseService {
             'Please pay all outstanding fees!',
           );
         }
+        if (m.licenseStatus === 'expired') {
+        }
       })
       .catch((r) => {
         console.log(r);
@@ -139,3 +141,11 @@ export class LicenseService {
     return licence;
   }
 }
+
+//Once they make payment the licence status is actvie for 3 years after which it expires
+// Fresh user login
+/* first check for outstanding bill 
+if payment check is passed, check for license is active or expired.
+ if expired promopt renewal fee for 10,000 valid for 3 years
+ if not expired, it sends back the license information.
+*/
