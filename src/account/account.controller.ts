@@ -12,7 +12,7 @@ import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { ValidateMembershipDto } from './dto/validate-membership.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -32,18 +32,21 @@ export class AccountController {
     return user;
   }
 
+  @ApiBearerAuth()
   @Post('signup')
   @HttpCode(201)
   async signup(
     @Headers('Authorization') authToken: string,
     @Body() signupDto: SignupDto,
   ) {
+    console.log(authToken);
     if (!authToken) {
       throw new HttpException(
         'Authorization token is required',
         HttpStatus.BAD_REQUEST,
       );
     }
+    console.log(authToken);
     return this.accountService.signup(authToken, signupDto);
   }
 

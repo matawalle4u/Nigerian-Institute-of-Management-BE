@@ -97,6 +97,7 @@ export class AccountService {
   }
 
   async signup(token: string, signupDto: SignupDto): Promise<any> {
+    console.log(token);
     const { email } = signupDto;
 
     const payload = this.jwtService.verify(token);
