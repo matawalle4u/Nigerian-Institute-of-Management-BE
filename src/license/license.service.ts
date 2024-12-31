@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymentException';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
-import { LicenseExpiredException } from './utils/LicenceExceptions';
+import { LicenseException } from './utils/LicenceExceptions';
 import { NotFoundError } from 'rxjs';
 
 @Injectable()
@@ -130,7 +130,7 @@ export class LicenseService {
       });
 
       if (!licence) {
-        throw new Error('License not found');
+        throw new LicenseException('No license found');
       }
 
       // Fetch the member details
@@ -156,7 +156,7 @@ export class LicenseService {
       if (!expired) {
         return licence;
       } else {
-        throw new LicenseExpiredException(
+        throw new LicenseException(
           'Your license has expired, please renew your license',
         );
       }
