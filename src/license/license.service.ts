@@ -11,7 +11,6 @@ import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymen
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 import { LicenseException } from './utils/LicenceExceptions';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class LicenseService {
