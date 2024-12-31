@@ -148,6 +148,8 @@ export class PaymentService {
       throw new Error('Payment not found');
     }
 
+    //check if license payment to update Licence table
+    console.log(payment.payers);
     payment.status = status;
 
     await this.paymentRepository.save(payment);
