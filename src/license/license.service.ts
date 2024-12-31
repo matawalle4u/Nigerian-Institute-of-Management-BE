@@ -109,6 +109,7 @@ export class LicenseService {
 
   async getLicenseByUserId(token, userId: number): Promise<License | null> {
     try {
+      console.log(token);
       const payload = this.jwtService.verify(token);
       const { email } = payload;
 
