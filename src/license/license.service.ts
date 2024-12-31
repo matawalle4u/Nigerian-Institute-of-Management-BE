@@ -167,7 +167,11 @@ export class LicenseService {
   async isLicenseExpired(userId: number): Promise<boolean> {
     // Get the latest successful payment for the user
     const latestPayment = await this.paymentRepository.findOne({
-      where: { payers: { id: userId }, status: 'success' },
+      where: {
+        payers: { id: userId },
+        status: 'success',
+        otherInfo: 'License',
+      },
       order: { createdAt: 'DESC' },
     });
 
