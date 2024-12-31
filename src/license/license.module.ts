@@ -7,10 +7,11 @@ import { AccountModule } from 'src/account/account.module';
 import { Login } from 'src/account/entities/login.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { Members } from 'src/membership/entities/membership.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([License, Login, Members]),
+    TypeOrmModule.forFeature([License, Login, Members, Payment]),
     JwtModule.register({
       secret: 'Yan2Mak!!',
       signOptions: { expiresIn: '1h' },

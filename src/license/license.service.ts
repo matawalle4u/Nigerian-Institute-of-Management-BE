@@ -9,6 +9,8 @@ import { Login } from 'src/account/entities/login.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymentException';
 import { Members } from 'src/membership/entities/membership.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
+import { LicenseExpiredException } from './utils/LicenceExceptions';
 
 @Injectable()
 export class LicenseService {
@@ -20,6 +22,8 @@ export class LicenseService {
     private readonly jwtService: JwtService,
     @InjectRepository(Members)
     private readonly memberRepository: Repository<Members>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
   ) {}
 
   async addLicense(
@@ -104,41 +108,78 @@ export class LicenseService {
   }
 
   async getLicenseByUserId(token, userId: number): Promise<License | null> {
-    const payload = this.jwtService.verify(token);
-    const { email } = payload;
-    console.log(email);
-    //console.log(email);
+    try {
+      const payload = this.jwtService.verify(token);
+      const { email } = payload;
 
-    const login = await this.loginRepository.findOne({
-      where: { email: email },
-    });
-
-    //console.log(login);
-
-    const licence = this.licenseRepository.findOne({
-      where: { login: { id: userId } },
-      relations: ['login'],
-    });
-    const member = this.memberRepository.findOne({
-      where: { loginId: { id: (await licence).login.id } },
-      relations: ['loginId'],
-    });
-
-    member
-      .then((m) => {
-        if (!m.cumulativeCp) {
-          console.log('null');
-          throw new PaymentOutStandingException(
-            'Please pay all outstanding fees!',
-          );
-        }
-        if (m.licenseStatus === 'expired') {
-        }
-      })
-      .catch((r) => {
-        console.log(r);
+      // Fetch the login details
+      const login = await this.loginRepository.findOne({
+        where: { email: email },
       });
-    return licence;
+
+      if (!login) {
+        throw new Error('Login not found');
+      }
+
+      // Fetch the license details
+      const licence = await this.licenseRepository.findOne({
+        where: { login: { id: userId } },
+        relations: ['login'],
+      });
+
+      if (!licence) {
+        throw new Error('License not found');
+      }
+
+      // Fetch the member details
+      const member = await this.memberRepository.findOne({
+        where: { loginId: { id: licence.login.id } },
+        relations: ['loginId'],
+      });
+
+      if (!member) {
+        throw new Error('Member not found');
+      }
+
+      // Check cumulative CP and throw an exception if necessary
+      if (!member.cumulativeCp) {
+        throw new PaymentOutStandingException(
+          'Please pay all outstanding fees!',
+        );
+      }
+
+      // Check for license expiration
+      const expired = await this.isLicenseExpired(userId);
+
+      if (!expired) {
+        return licence;
+      } else {
+        throw new LicenseExpiredException(
+          'Your license has expired, please renew your license',
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async isLicenseExpired(userId: number): Promise<boolean> {
+    // Get the latest successful payment for the user
+    const latestPayment = await this.paymentRepository.findOne({
+      where: { payers: { id: userId }, status: 'success' },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!latestPayment) {
+      return true;
+    }
+
+    // Check if the payment was made more than 3 years ago
+    const threeYearsAgo = new Date();
+    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+
+    return latestPayment.createdAt <= threeYearsAgo;
   }
 }
 
