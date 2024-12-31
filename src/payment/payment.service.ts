@@ -9,6 +9,7 @@ import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 import { PaystackResponse, PaymentData } from './dto/paystack.dto';
 import axios from 'axios';
 import { AxiosResponse } from '../types/axios-response.type';
+import { License } from 'src/license/entities/license.entity';
 
 @Injectable()
 export class PaymentService {
@@ -27,6 +28,8 @@ export class PaymentService {
     private paymentRepository: Repository<Payment>,
     @InjectRepository(Login)
     private userRepository: Repository<Login>,
+    @InjectRepository(License)
+    private licenceRepository: Repository<License>,
   ) {}
 
   async getOutstandingPayments(userId: number): Promise<Payment[]> {
@@ -148,10 +151,12 @@ export class PaymentService {
       throw new Error('Payment not found');
     }
 
-    //check if license payment to update Licence table
-    console.log(payment.payers);
     payment.status = status;
-
+    const licenceRecord = this.licenceRepository.create({
+      licenseNo: null,
+      login: payment.payers,
+    });
     await this.paymentRepository.save(payment);
+    await this.licenceRepository.save(licenceRecord);
   }
 }
