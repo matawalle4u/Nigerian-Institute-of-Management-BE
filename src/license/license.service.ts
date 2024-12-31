@@ -11,6 +11,7 @@ import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymen
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 import { LicenseExpiredException } from './utils/LicenceExceptions';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class LicenseService {
@@ -139,11 +140,11 @@ export class LicenseService {
       });
 
       if (!member) {
-        throw new Error('Member not found');
+        throw new NotFoundException('No licence found for the user');
       }
 
       // Check cumulative CP and throw an exception if necessary
-      if (!member.cumulativeCp) {
+      if (member.cumulativeCp) {
         throw new PaymentOutStandingException(
           'Please pay all outstanding fees!',
         );
