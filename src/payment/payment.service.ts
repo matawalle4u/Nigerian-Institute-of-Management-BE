@@ -149,10 +149,6 @@ export class PaymentService {
       relations: ['payers'],
     });
 
-    console.log(
-      this.paymentRepository.metadata.columns.map((col) => col.propertyName),
-    );
-
     console.log('Payment record:', payment);
     if (!payment) {
       throw new Error('Payment not found');
@@ -160,7 +156,7 @@ export class PaymentService {
 
     payment.status = status;
     const licenceRecord = this.licenceRepository.create({
-      licenseNo: null,
+      licenseNo: reference,
       login: payment.payers,
     });
     await this.paymentRepository.save(payment);
