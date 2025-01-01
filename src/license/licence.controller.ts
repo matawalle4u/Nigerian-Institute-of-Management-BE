@@ -61,9 +61,9 @@ export class LicenseController {
   }
 
   @Get('user')
-  async getLicenseByUserId(@Headers('Authorization') authToken: string) {
+  async getUserLicense(@Headers('Authorization') authToken: string) {
     console.log(authToken);
-    const license = await this.licenseService.getLicenseByUserId(authToken);
+    const license = await this.licenseService.getUserLicense(authToken);
     if (!license) {
       return { message: 'License not found for the specified user ID' };
     }

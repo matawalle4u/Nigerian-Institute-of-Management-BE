@@ -107,7 +107,7 @@ export class LicenseService {
     });
   }
 
-  async getLicenseByUserId(token): Promise<License | null> {
+  async getUserLicense(token): Promise<License | null> {
     try {
       console.log(token);
       const payload = this.jwtService.verify(token);
