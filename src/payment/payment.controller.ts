@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import {
   PaymentHistoryDto,
@@ -53,7 +62,31 @@ export class PaymentController {
 
   @Post('verify')
   async verifyPayment(@Body() verifyPaymentDto: VerifyPaymentDto) {
-    return this.paymentService.verifyPayment(verifyPaymentDto.reference);
+    const paymentData = this.paymentService.verifyPayment(
+      verifyPaymentDto.reference,
+    );
+    return {
+      message: 'Payment verified successfully',
+      payment: paymentData,
+    };
+  }
+  @Get('callback')
+  async handleCallback(
+    @Query('reference') reference: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const paymentData = await this.paymentService.verifyPayment(reference);
+      // Redirect to a success or failure page based on the payment status
+      if (paymentData.status === 'success') {
+        return res.redirect(`${process.env.APP_BASE_URL}/payment/success`);
+      } else {
+        return res.redirect(`${process.env.APP_BASE_URL}/payment/failure`);
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      return res.redirect(`${process.env.APP_BASE_URL}/payment/failure`);
+    }
   }
   @Post('/webhook')
   async handlePaystackWebhook(
