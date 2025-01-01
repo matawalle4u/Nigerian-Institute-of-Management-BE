@@ -156,7 +156,6 @@ export class PaymentService {
     }
 
     payment.status = status;
-    console.log(payment.payers);
     const licenceRecord = this.licenceRepository.create({
       licenseNo: null,
       login: payment.payers,
