@@ -107,12 +107,12 @@ export class LicenseService {
     });
   }
 
-  async getLicenseByUserId(token, userId: number): Promise<License | null> {
+  async getLicenseByUserId(token): Promise<License | null> {
     try {
       console.log(token);
       const payload = this.jwtService.verify(token);
       const { email } = payload;
-
+      console.log(email);
       // Fetch the login details
       const login = await this.loginRepository.findOne({
         where: { email: email },
@@ -150,7 +150,7 @@ export class LicenseService {
       }
 
       // Check for license expiration
-      const expired = await this.isLicenseExpired(userId);
+      const expired = await this.isLicenseExpired(email);
 
       if (!expired) {
         return licence;
@@ -165,11 +165,11 @@ export class LicenseService {
     }
   }
 
-  async isLicenseExpired(userId: number): Promise<boolean> {
+  async isLicenseExpired(email: string): Promise<boolean> {
     // Get the latest successful payment for the user
     const latestPayment = await this.paymentRepository.findOne({
       where: {
-        payers: { id: userId },
+        payers: { email: email },
         status: 'success',
         otherInfo: 'License',
       },

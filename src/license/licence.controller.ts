@@ -7,7 +7,6 @@ import {
   Delete,
   Get,
   Query,
-  ParseIntPipe,
   Headers,
 } from '@nestjs/common';
 
@@ -61,16 +60,10 @@ export class LicenseController {
     return this.licenseService.searchLicense(searchDto);
   }
 
-  @Get('user/:userId')
-  async getLicenseByUserId(
-    @Headers('Authorization') authToken: string,
-    @Param('userId', ParseIntPipe) userId: number,
-  ) {
+  @Get('user')
+  async getLicenseByUserId(@Headers('Authorization') authToken: string) {
     console.log(authToken);
-    const license = await this.licenseService.getLicenseByUserId(
-      authToken,
-      userId,
-    );
+    const license = await this.licenseService.getLicenseByUserId(authToken);
     if (!license) {
       return { message: 'License not found for the specified user ID' };
     }
