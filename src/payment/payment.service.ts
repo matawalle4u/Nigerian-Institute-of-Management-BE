@@ -87,6 +87,7 @@ export class PaymentService {
 
     // Try to save the payment record
     try {
+      console.log(payment);
       await this.paymentRepository.save(payment);
     } catch (error) {
       // Log the error for debugging and tracking
