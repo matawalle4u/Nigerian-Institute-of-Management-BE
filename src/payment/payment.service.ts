@@ -146,6 +146,10 @@ export class PaymentService {
       where: { paymentId: reference },
     });
 
+    console.log(
+      this.paymentRepository.metadata.columns.map((col) => col.propertyName),
+    );
+
     console.log('Payment record:', payment);
     if (!payment) {
       throw new Error('Payment not found');
