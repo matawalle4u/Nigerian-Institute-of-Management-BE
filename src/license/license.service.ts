@@ -107,9 +107,9 @@ export class LicenseService {
     });
   }
 
-  async getUserLicense(token: string): Promise<License | null> {
+  async getUserLicense(token: string, userId: number): Promise<License | null> {
     try {
-      console.log(token);
+      console.log(token, userId);
       const payload = this.jwtService.verify(token);
       const { email } = payload;
       console.log(email);
@@ -117,7 +117,7 @@ export class LicenseService {
       const login = await this.loginRepository.findOne({
         where: { email: email },
       });
-
+      console.log(login);
       if (!login) {
         throw new Error('Login not found');
       }

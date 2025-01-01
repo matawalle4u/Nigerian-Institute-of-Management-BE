@@ -60,12 +60,17 @@ export class LicenseController {
     return this.licenseService.searchLicense(searchDto);
   }
 
-  @Get('user')
-  async getUserLicense(@Headers('Authorization') authToken: string) {
-    console.log(authToken);
-    const license = await this.licenseService.getUserLicense(authToken);
+  @Get('user/:userId')
+  async getUserLicense(
+    @Headers('Authorization') authToken: string,
+    @Param() userId: number,
+  ) {
+    console.log(authToken, userId);
+    const license = await this.licenseService.getUserLicense(authToken, userId);
     if (!license) {
-      return { message: 'License not found for the specified user ID' };
+      return {
+        message: `License not found for the specified user with ID ${userId}`,
+      };
     }
     return license;
   }
