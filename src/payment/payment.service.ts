@@ -77,11 +77,12 @@ export class PaymentService {
 
     // Create a new payment record
     console.log(paymentData);
+
     const payment = this.paymentRepository.create({
-      paymentId: paymentData.reference, // Use Paystack's reference as paymentId
-      payers: { id: loginUser.id }, // Assign the Login entity to payers
+      paymentId: paymentData.reference,
+      payers: { id: loginUser.id },
       amount: initiatePaymentDto.amount,
-      status: null, // Status will be updated on webhook confirmation
+      status: null,
       otherInfo: initiatePaymentDto.description || null,
     });
 
@@ -145,6 +146,7 @@ export class PaymentService {
   ): Promise<void> {
     const payment = await this.paymentRepository.findOne({
       where: { paymentId: reference },
+      relations: ['payers'],
     });
 
     console.log(
