@@ -50,10 +50,15 @@ export class PaymentService {
   async initiatePayment(
     initiatePaymentDto: InitiatePaymentDto,
   ): Promise<PaymentData> {
+    const callbackUrl = `${process.env.APP_BASE_URL}/payment/verify`;
+    const payload = {
+      ...initiatePaymentDto,
+      callback_url: callbackUrl,
+    };
     const response: AxiosResponse<PaystackResponse<PaymentData>> =
       await axios.post(
         `${this.paystackBaseUrl}/transaction/initialize`,
-        initiatePaymentDto,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${this.paystackSecretKey}`,
