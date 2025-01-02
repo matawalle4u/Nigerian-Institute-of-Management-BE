@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
   NotFoundException,
+  HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,9 +16,14 @@ import { Members } from 'src/membership/entities/membership.entity';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
+import axios from 'axios';
 
 @Injectable()
 export class AccountService {
+  private readonly baseUrl =
+    'https://uverify.com.ng/v1/rest-api/verification/nin/';
+  private readonly apiKey = process.env.UVERIFY_API_KEY;
+
   constructor(
     @InjectRepository(Login)
     private readonly loginRepository: Repository<Login>,
@@ -210,5 +216,27 @@ export class AccountService {
     user.password = newHashedPassword;
     this.loginRepository.save(user);
     return user;
+  }
+  async verifyNIN(nin: string): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/${nin}`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            apiKey: this.apiKey,
+          },
+        },
+      );
+      // .toPromise();
+
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Failed to verify NIN',
+        error.response?.status || 500,
+      );
+    }
   }
 }

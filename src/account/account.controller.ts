@@ -7,6 +7,7 @@ import {
   Headers,
   HttpException,
   HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
@@ -112,5 +113,9 @@ export class AccountController {
       message: 'Password changed successfully',
       data: user,
     };
+  }
+  @Post('verify-nin/:nin')
+  async verifyNIN(@Param('nin') nin: string) {
+    return this.accountService.verifyNIN(nin);
   }
 }
