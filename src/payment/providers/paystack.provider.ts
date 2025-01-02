@@ -12,10 +12,13 @@ export class PaystackProvider implements PaymentProvider {
   async initializePayment(
     initiatePaymentDto: InitiatePaymentDto,
   ): Promise<any> {
+    const paymentData = {
+      ...initiatePaymentDto,
+      amount: initiatePaymentDto.amount * 100,
+    };
     const response = await axios.post(
       `${this.paystackBaseUrl}/transaction/initialize`,
-      //   { amount, email, description },
-      initiatePaymentDto,
+      paymentData,
       {
         headers: { Authorization: `Bearer ${this.paystackSecretKey}` },
       },
