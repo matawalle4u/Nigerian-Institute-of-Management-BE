@@ -2,7 +2,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Login } from '../account/entities/login.entity';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
@@ -46,6 +46,45 @@ export class PaymentService {
       relations: ['payers'],
       select: ['createdAt', 'otherInfo', 'amount', 'status'],
     });
+  }
+
+  async getMemberOutstandingPayments(
+    userId: number,
+  ): Promise<{ year: number; description: string; amount: number }[]> {
+    const currentYear = new Date().getFullYear();
+    const baseYear = 2024;
+    const requiredDescription = 'License';
+    const requiredAmount = 10000;
+
+    const yearsToCheck = Array.from(
+      { length: currentYear - baseYear + 1 },
+      (_, i) => baseYear + i,
+    );
+    const outstandingYears = [];
+
+    for (const year of yearsToCheck) {
+      const paymentExists = await this.paymentRepository.findOne({
+        where: {
+          payers: { id: userId },
+          otherInfo: requiredDescription,
+          createdAt: Between(
+            new Date(`${year}-01-01`),
+            new Date(`${year}-12-31`),
+          ),
+        },
+        relations: ['payers'],
+      });
+
+      if (!paymentExists) {
+        outstandingYears.push({
+          year,
+          description: requiredDescription,
+          amount: requiredAmount,
+        });
+      }
+    }
+
+    return outstandingYears;
   }
 
   async initiatePayment(
