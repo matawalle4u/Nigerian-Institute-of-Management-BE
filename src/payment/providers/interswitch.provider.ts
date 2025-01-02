@@ -5,14 +5,14 @@ import { InitiatePaymentDto } from '../dto/initiate-payment.dto';
 
 @Injectable()
 export class InterswitchProvider implements PaymentProvider {
-  private readonly interswitchBaseUrl = 'https://api.interswitch.com';
+  private readonly interswitchBaseUrl = process.env.INTERSWITCH_URL;
   private readonly interswitchSecretKey = process.env.INTERSWITCH_SECRET_KEY;
 
   async initializePayment(
     initiatePaymentDto: InitiatePaymentDto,
   ): Promise<any> {
     const response = await axios.post(
-      `${this.interswitchBaseUrl}/transactions/initialize`,
+      `${this.interswitchBaseUrl}`,
       //   { amount, email, description },
       initiatePaymentDto,
       {
