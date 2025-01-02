@@ -9,10 +9,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import {
-  PaymentHistoryDto,
-  OutstandingPaymentDto,
-} from './dto/payment-history.dto';
+import { PaymentHistoryDto } from './dto/payment-history.dto';
 import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { createHmac } from 'crypto';
