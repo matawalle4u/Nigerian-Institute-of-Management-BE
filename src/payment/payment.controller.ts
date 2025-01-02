@@ -33,13 +33,10 @@ export class PaymentController {
   @Get('outstanding/:userId')
   async getOutstandingPayments(
     @Param('userId') userId: number,
-  ): Promise<OutstandingPaymentDto[]> {
-    const payments = await this.paymentService.getOutstandingPayments(userId);
-    return payments.map((payment) => ({
-      date: payment.createdAt,
-      billName: payment.otherInfo || 'Unknown Bill',
-      amount: payment.amount,
-    }));
+  ): Promise<any[]> {
+    const payments =
+      await this.paymentService.getMemberOutstandingPayments(userId);
+    return payments;
   }
 
   @Get('history/:userId')
