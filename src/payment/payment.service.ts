@@ -10,7 +10,7 @@ import { PaystackResponse, PaymentData } from './dto/paystack.dto';
 import axios from 'axios';
 import { AxiosResponse } from '../types/axios-response.type';
 import { License } from 'src/license/entities/license.entity';
-
+import { PaymentProviderFactory } from './providers/payment-provider.factory';
 @Injectable()
 export class PaymentService {
   private readonly paystackBaseUrl = 'https://api.paystack.co';
@@ -30,6 +30,7 @@ export class PaymentService {
     private userRepository: Repository<Login>,
     @InjectRepository(License)
     private licenceRepository: Repository<License>,
+    private readonly paymentFactory: PaymentProviderFactory,
   ) {}
 
   async getOutstandingPayments(userId: number): Promise<Payment[]> {
@@ -48,67 +49,70 @@ export class PaymentService {
   }
 
   async initiatePayment(
+    provider: 'paystack' | 'interswitch',
     initiatePaymentDto: InitiatePaymentDto,
-  ): Promise<PaymentData> {
-    const callbackUrl = `${process.env.APP_BASE_URL}/payment/verify`;
-    const payload = {
-      ...initiatePaymentDto,
-      callback_url: callbackUrl,
-    };
-    const response: AxiosResponse<PaystackResponse<PaymentData>> =
-      await axios.post(
-        `${this.paystackBaseUrl}/transaction/initialize`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${this.paystackSecretKey}`,
-          },
-        },
-      );
+  ): Promise<any> {
+    const paymentProvider = this.paymentFactory.getProvider(provider);
+    return paymentProvider.initializePayment(initiatePaymentDto);
+    // const callbackUrl = `${process.env.APP_BASE_URL}/payment/verify`;
+    // const payload = {
+    //   ...initiatePaymentDto,
+    //   callback_url: callbackUrl,
+    // };
+    // const response: AxiosResponse<PaystackResponse<PaymentData>> =
+    //   await axios.post(
+    //     `${this.paystackBaseUrl}/transaction/initialize`,
+    //     payload,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${this.paystackSecretKey}`,
+    //       },
+    //     },
+    //   );
 
-    if (!response.data.status) {
-      throw new Error(response.data.message);
-    }
+    // if (!response.data.status) {
+    //   throw new Error(response.data.message);
+    // }
 
-    const paymentData = response.data.data;
+    // const paymentData = response.data.data;
 
-    // Find the user based on the email address
-    const loginUser = await this.userRepository.findOne({
-      where: { email: initiatePaymentDto.email },
-    });
-    if (!loginUser) {
-      throw new Error('User not found');
-    }
+    // // Find the user based on the email address
+    // const loginUser = await this.userRepository.findOne({
+    //   where: { email: initiatePaymentDto.email },
+    // });
+    // if (!loginUser) {
+    //   throw new Error('User not found');
+    // }
 
-    // Create a new payment record
-    console.log(paymentData);
+    // // Create a new payment record
+    // console.log(paymentData);
 
-    const payment = this.paymentRepository.create({
-      paymentId: paymentData.reference,
-      payers: { id: loginUser.id },
-      amount: initiatePaymentDto.amount,
-      status: null,
-      otherInfo: initiatePaymentDto.description || null,
-    });
+    // const payment = this.paymentRepository.create({
+    //   paymentId: paymentData.reference,
+    //   payers: { id: loginUser.id },
+    //   amount: initiatePaymentDto.amount,
+    //   status: null,
+    //   otherInfo: initiatePaymentDto.description || null,
+    // });
 
-    // Try to save the payment record
-    try {
-      console.log(payment);
-      await this.paymentRepository.save(payment);
-    } catch (error) {
-      // Log the error for debugging and tracking
-      console.error('Error saving payment to database:', error);
-      // Notify or retry logic (optional)
-      // Example: Notify admin via email, push notification, etc.
+    // // Try to save the payment record
+    // try {
+    //   console.log(payment);
+    //   await this.paymentRepository.save(payment);
+    // } catch (error) {
+    //   // Log the error for debugging and tracking
+    //   console.error('Error saving payment to database:', error);
+    //   // Notify or retry logic (optional)
+    //   // Example: Notify admin via email, push notification, etc.
 
-      // Re-throw the error if necessary
-      throw new Error(
-        'Payment was initiated but failed to save in the database. Please contact support.',
-      );
-    }
+    //   // Re-throw the error if necessary
+    //   throw new Error(
+    //     'Payment was initiated but failed to save in the database. Please contact support.',
+    //   );
+    // }
 
-    // Return the payment data
-    return paymentData;
+    // // Return the payment data
+    // return paymentData;
 
     //return response.data.data;
   }
