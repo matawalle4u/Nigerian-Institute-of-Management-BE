@@ -56,8 +56,11 @@ export class PaymentController {
   }
 
   @Post('initialize')
-  async initializePayment(@Body() initiatePaymentDto: InitiatePaymentDto) {
-    return this.paymentService.initiatePayment(initiatePaymentDto);
+  async initializePayment(
+    @Query('provider') provider: 'paystack' | 'interswitch',
+    @Body() initiatePaymentDto: InitiatePaymentDto,
+  ) {
+    return this.paymentService.initiatePayment(provider, initiatePaymentDto);
   }
 
   @Post('verify')
