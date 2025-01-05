@@ -55,6 +55,7 @@ export class PaymentService {
     const baseYear = 2024;
     const requiredDescription = 'License';
     const requiredAmount = 10000;
+    const kwanan_wata = new Date();
 
     const yearsToCheck = Array.from(
       { length: currentYear - baseYear + 1 },
@@ -74,13 +75,14 @@ export class PaymentService {
         },
         relations: ['payers'],
       });
-
       if (!paymentExists) {
-        outstandingYears.push({
+        const outstanding = {
           year,
           description: requiredDescription,
           amount: requiredAmount,
-        });
+          date: kwanan_wata,
+        };
+        outstandingYears.push(outstanding);
       }
     }
 
@@ -93,67 +95,6 @@ export class PaymentService {
   ): Promise<any> {
     const paymentProvider = this.paymentFactory.getProvider(provider);
     return paymentProvider.initializePayment(initiatePaymentDto);
-    // const callbackUrl = `${process.env.APP_BASE_URL}/payment/verify`;
-    // const payload = {
-    //   ...initiatePaymentDto,
-    //   callback_url: callbackUrl,
-    // };
-    // const response: AxiosResponse<PaystackResponse<PaymentData>> =
-    //   await axios.post(
-    //     `${this.paystackBaseUrl}/transaction/initialize`,
-    //     payload,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${this.paystackSecretKey}`,
-    //       },
-    //     },
-    //   );
-
-    // if (!response.data.status) {
-    //   throw new Error(response.data.message);
-    // }
-
-    // const paymentData = response.data.data;
-
-    // // Find the user based on the email address
-    // const loginUser = await this.userRepository.findOne({
-    //   where: { email: initiatePaymentDto.email },
-    // });
-    // if (!loginUser) {
-    //   throw new Error('User not found');
-    // }
-
-    // // Create a new payment record
-    // console.log(paymentData);
-
-    // const payment = this.paymentRepository.create({
-    //   paymentId: paymentData.reference,
-    //   payers: { id: loginUser.id },
-    //   amount: initiatePaymentDto.amount,
-    //   status: null,
-    //   otherInfo: initiatePaymentDto.description || null,
-    // });
-
-    // // Try to save the payment record
-    // try {
-    //   console.log(payment);
-    //   await this.paymentRepository.save(payment);
-    // } catch (error) {
-    //   // Log the error for debugging and tracking
-    //   console.error('Error saving payment to database:', error);
-    //   // Notify or retry logic (optional)
-    //   // Example: Notify admin via email, push notification, etc.
-
-    //   // Re-throw the error if necessary
-    //   throw new Error(
-    //     'Payment was initiated but failed to save in the database. Please contact support.',
-    //   );
-    // }
-
-    // // Return the payment data
-    // return paymentData;
-
-    //return response.data.data;
   }
   /**
    * Verify a payment
