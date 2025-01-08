@@ -1,62 +1,75 @@
 // src/billing/billing.service.ts
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Bill } from './entities/bill.entity';
 import { CreateBillDto } from './dto/create-billing.dto';
+import { Login } from 'src/account/entities/login.entity';
 
 @Injectable()
 export class BillingService {
-  // Simulate a database
-  private users = [
-    { id: 'user1', name: 'Alice' },
-    { id: 'user2', name: 'Bob' },
-  ];
-
-  private bills = []; // Store generated bills
+  constructor(
+    @InjectRepository(Bill) private readonly billRepository: Repository<Bill>,
+    @InjectRepository(Login) private readonly userRepository: Repository<Login>,
+  ) {}
 
   async createBillForUser(dto: CreateBillDto) {
-    const user = this.users.find((u) => u.id === dto.userId);
+    const user = await this.userRepository.findOne({
+      where: { id: dto.userId },
+    });
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
-    const bill = {
-      ...dto,
-      createdAt: new Date(),
-      paid: false,
-    };
-    this.bills.push(bill);
-    return bill;
+    const bill = this.billRepository.create({
+      user,
+      description: dto.description,
+      amount: dto.amount,
+    });
+    return this.billRepository.save(bill);
   }
 
   async createBillForAllUsers(description: string, amount: number) {
-    const createdBills = [];
-    for (const user of this.users) {
-      const dto = { userId: user.id, description, amount };
-      const bill = await this.createBillForUser(dto);
-      createdBills.push(bill);
+    const users = await this.userRepository.find();
+    if (!users.length) {
+      throw new BadRequestException('No users found');
     }
-    return createdBills;
+
+    const bills = users.map((user) =>
+      this.billRepository.create({
+        user,
+        description,
+        amount,
+      }),
+    );
+
+    return this.billRepository.save(bills);
   }
 
-  async processPayment(userId: string, billId: string, paymentData: any) {
-    const bill = this.bills.find((b) => b.userId === userId && b.id === billId);
+  async processPayment(billId: string) {
+    const bill = await this.billRepository.findOne({ where: { id: billId } });
     if (!bill) {
       throw new BadRequestException('Bill not found');
     }
 
+    if (bill.paid) {
+      throw new BadRequestException('Bill is already paid');
+    }
+
     // Simulate payment processing
-    const paymentResult = await this.simulatePayment(paymentData);
+    const paymentResult = await this.simulatePayment();
 
     if (paymentResult.success) {
       bill.paid = true;
       bill.paidAt = new Date();
-      return { message: 'Payment successful', bill };
+      return this.billRepository.save(bill);
     }
 
     throw new BadRequestException('Payment failed');
   }
 
-  private async simulatePayment(paymentData: any) {
+  private async simulatePayment() {
     // Mock payment processing logic
-    return { success: true, transactionId: '12345' };
+    return { success: true };
   }
 }
