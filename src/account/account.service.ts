@@ -21,7 +21,7 @@ import axios from 'axios';
 @Injectable()
 export class AccountService {
   private readonly baseUrl =
-    'https://uverify.com.ng/v1/rest-api/verification/nin/';
+    'https://api2.uverify.com.ng/v1/rest-api/verification/nin';
   private readonly apiKey = process.env.UVERIFY_API_KEY;
 
   constructor(
@@ -233,8 +233,9 @@ export class AccountService {
 
       return response.data;
     } catch (error) {
+      console.log(error);
       throw new HttpException(
-        error.response?.data || 'Failed to verify NIN',
+        error.response?.data,
         error.response?.status || 500,
       );
     }
