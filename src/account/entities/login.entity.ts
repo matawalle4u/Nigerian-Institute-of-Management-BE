@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { Bill } from 'src/billing/entities/bill.entity';
 
 @Entity('login')
 export class Login {
@@ -43,4 +44,7 @@ export class Login {
   member: Members;
   @OneToMany(() => Payment, (payment) => payment.payers)
   payments: Payment[];
+
+  @OneToMany(() => Bill, (bill) => bill.user)
+  bills: Bill[];
 }
