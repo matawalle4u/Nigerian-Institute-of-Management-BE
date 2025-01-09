@@ -1,9 +1,9 @@
-// src/billing/billing.service.ts
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bill } from './entities/bill.entity';
 import { CreateBillDto } from './dto/create-billing.dto';
+import { CreateGeneralBillDto } from './dto/create-general-bill.dto';
 import { Login } from 'src/account/entities/login.entity';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class BillingService {
     return this.billRepository.save(bill);
   }
 
-  async createBillForAllUsers(description: string, amount: number) {
+  async createBillForAllUsers(generalBillDto: CreateGeneralBillDto) {
     const users = await this.userRepository.find();
     if (!users.length) {
       throw new BadRequestException('No users found');
@@ -38,8 +38,8 @@ export class BillingService {
     const bills = users.map((user) =>
       this.billRepository.create({
         user,
-        description,
-        amount,
+        description: generalBillDto.description,
+        amount: generalBillDto.amount,
       }),
     );
 

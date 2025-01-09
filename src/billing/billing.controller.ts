@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Param, Get } from '@nestjs/common';
 import { BillingService } from './billing.service';
 import { CreateBillDto } from './dto/create-billing.dto';
+import { CreateGeneralBillDto } from './dto/create-general-bill.dto';
 
 @Controller('billing')
 export class BillingController {
@@ -12,10 +13,8 @@ export class BillingController {
   }
 
   @Post('create/all')
-  async createBillForAllUsers(
-    @Body() { description, amount }: { description: string; amount: number },
-  ) {
-    return this.billingService.createBillForAllUsers(description, amount);
+  async createBillForAllUsers(@Body() generalBillDto: CreateGeneralBillDto) {
+    return this.billingService.createBillForAllUsers(generalBillDto);
   }
 
   @Post('pay/:billId')
