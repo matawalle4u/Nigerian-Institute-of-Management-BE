@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get } from '@nestjs/common';
 import { BillingService } from './billing.service';
 import { CreateBillDto } from './dto/create-billing.dto';
 
@@ -21,5 +21,10 @@ export class BillingController {
   @Post('pay/:billId')
   async processPayment(@Param('billId') billId: string) {
     return this.billingService.processPayment(billId);
+  }
+
+  @Get('all')
+  async getAll() {
+    return this.billingService.getAll();
   }
 }

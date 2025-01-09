@@ -46,6 +46,10 @@ export class BillingService {
     return this.billRepository.save(bills);
   }
 
+  async getAll() {
+    const bills = await this.billRepository.find();
+    return bills;
+  }
   async processPayment(billId: string) {
     const bill = await this.billRepository.findOne({ where: { id: billId } });
     if (!bill) {
