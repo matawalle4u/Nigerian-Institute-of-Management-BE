@@ -8,9 +8,10 @@ import { License } from 'src/license/entities/license.entity';
 import { PaymentProviderFactory } from './providers/payment-provider.factory';
 import { PaystackProvider } from './providers/paystack.provider';
 import { InterswitchProvider } from './providers/interswitch.provider';
+import { Bill } from 'src/billing/entities/bill.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Login, License])],
+  imports: [TypeOrmModule.forFeature([Payment, Login, License, Bill])],
   providers: [
     PaymentService,
     PaymentProviderFactory,

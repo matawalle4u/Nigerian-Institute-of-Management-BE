@@ -31,8 +31,7 @@ export class PaymentController {
   async getOutstandingPayments(
     @Param('userId') userId: number,
   ): Promise<any[]> {
-    const payments =
-      await this.paymentService.getMemberOutstandingPayments(userId);
+    const payments = await this.paymentService.getMemberUnpaidBills(userId);
     return payments;
   }
 

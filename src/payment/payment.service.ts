@@ -11,6 +11,7 @@ import axios from 'axios';
 import { AxiosResponse } from '../types/axios-response.type';
 import { License } from 'src/license/entities/license.entity';
 import { PaymentProviderFactory } from './providers/payment-provider.factory';
+import { Bill } from 'src/billing/entities/bill.entity';
 @Injectable()
 export class PaymentService {
   private readonly paystackBaseUrl = 'https://api.paystack.co';
@@ -31,6 +32,8 @@ export class PaymentService {
     @InjectRepository(License)
     private licenceRepository: Repository<License>,
     private readonly paymentFactory: PaymentProviderFactory,
+    @InjectRepository(Bill)
+    private billRepository: Repository<Bill>,
   ) {}
 
   async getOutstandingPayments(userId: number): Promise<Payment[]> {
@@ -38,6 +41,11 @@ export class PaymentService {
       where: { payers: { id: userId }, status: null },
       relations: ['payers'],
       select: ['createdAt', 'otherInfo', 'amount'],
+    });
+  }
+  async getMemberUnpaidBills(userId: number) {
+    return this.billRepository.find({
+      where: { user: { id: userId }, paid: false },
     });
   }
   async getPaymentHistory(userId: number): Promise<Payment[]> {
