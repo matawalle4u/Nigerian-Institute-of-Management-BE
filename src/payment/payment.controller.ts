@@ -121,4 +121,9 @@ export class PaymentController {
 
     res.status(200).send('Webhook received');
   }
+
+  @Get('all')
+  async getAll() {
+    return this.paymentService.getAll();
+  }
 }

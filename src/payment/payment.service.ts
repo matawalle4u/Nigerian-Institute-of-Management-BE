@@ -162,4 +162,7 @@ export class PaymentService {
 
     await this.paymentRepository.save(payment);
   }
+  async getAll() {
+    return this.paymentRepository.find();
+  }
 }
