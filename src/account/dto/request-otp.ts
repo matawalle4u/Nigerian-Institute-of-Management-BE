@@ -23,12 +23,6 @@ export class VerifyOtpDto {
 
 export class ResetPasswordDto {
   @ApiProperty({
-    description: 'email',
-    example: 'adam.mustapha@byteflow.com.ng',
-  })
-  email: string;
-
-  @ApiProperty({
     description: 'New password',
     example: 'Password1234',
   })

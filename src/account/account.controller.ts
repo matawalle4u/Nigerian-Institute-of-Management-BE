@@ -67,8 +67,11 @@ export class AccountController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.accountService.resetPassword(dto);
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Headers('Authorization') authToken: string,
+  ) {
+    return this.accountService.resetPassword(dto, authToken);
   }
   @Post('create-user')
   @HttpCode(201)

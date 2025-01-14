@@ -195,7 +195,7 @@ export class AccountService {
       .andWhere('otp.verified = :verified', { verified: 0 })
       .getOne();
 
-    //console.log(`otp ${otp}`);
+    console.log(`otp ${otp}`);
     if (!otp) throw new BadRequestException('Invalid or expired OTP.');
 
     otp.verified = true;
@@ -210,25 +210,32 @@ export class AccountService {
     */
     //user.reset_token = accessToken;
 
-
+    user.reset_token = accessToken;
+    await this.loginRepository.save(user);
     return {
       accessToken,
       user,
     };
   }
-  async resetPassword(dto: ResetPasswordDto): Promise<string> {
+  async resetPassword(
+    dto: ResetPasswordDto,
+    authToken: string,
+  ): Promise<string> {
+    /*/
+    TODO catch token expiration error
+    */
+    const payload = this.jwtService.verify(authToken);
+    console.log(payload);
     const user = await this.loginRepository.findOne({
-      where: { email: dto.email },
+      where: { email: payload.email, status: 'active' },
+      relations: ['member'],
     });
+
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
 
-    const otp = await this.otpRepository.findOne({
-      where: { user, verified: true },
-    });
-    if (!otp) throw new BadRequestException('OTP verification required.');
-
-    user.password = dto.newPassword; // Hash password here
+    const newHashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    user.password = newHashedPassword;
     await this.loginRepository.save(user);
 
     // Optionally delete OTP after use
