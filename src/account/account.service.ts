@@ -163,7 +163,7 @@ export class AccountService {
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
     const otp = this.otpRepository.create({ user, otp: otpCode });
     await this.otpRepository.save(otp);
-
+    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying 
     // Send OTP via email
     // await this.mailerService.sendMail({
     //   to: dto.email,
@@ -175,22 +175,46 @@ export class AccountService {
     return 'OTP sent to email.';
   }
 
-  async verifyOtp(dto: VerifyOtpDto): Promise<string> {
+  async verifyOtp(
+    dto: VerifyOtpDto,
+  ): Promise<{ accessToken: string; user: Login }> {
     const user = await this.loginRepository.findOne({
       where: { email: dto.email },
     });
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
 
-    const otp = await this.otpRepository.findOne({
-      where: { user, otp: dto.otp, verified: false },
-    });
+    // const otp = await this.otpRepository.findOne({
+    //   where: { user, otp: dto.otp, verified: 0 },
+    // });
+
+    const otp = await this.otpRepository
+      .createQueryBuilder('otp')
+      .where('otp.userId = :userId', { userId: user.id })
+      .andWhere('otp.otp = :otp', { otp: dto.otp })
+      .andWhere('otp.verified = :verified', { verified: 0 })
+      .getOne();
+
+    //console.log(`otp ${otp}`);
     if (!otp) throw new BadRequestException('Invalid or expired OTP.');
 
     otp.verified = true;
     await this.otpRepository.save(otp);
 
-    return 'OTP verified.';
+    //Generate token after that
+    const payload = { email: dto.email };
+    const accessToken = this.jwtService.sign(payload);
+    /*
+    TODO
+    Set reset_token on the login creadentials
+    */
+    //user.reset_token = accessToken;
+
+
+    return {
+      accessToken,
+      user,
+    };
   }
   async resetPassword(dto: ResetPasswordDto): Promise<string> {
     const user = await this.loginRepository.findOne({
