@@ -5,10 +5,11 @@ import { AccountService } from './account.service';
 import { Login } from './entities/login.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { Members } from 'src/membership/entities/membership.entity';
+import { Otp } from './entities/otp.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Login, Members]),
+    TypeOrmModule.forFeature([Login, Members, Otp]),
     JwtModule.register({
       secret: 'Yan2Mak!!',
       signOptions: { expiresIn: '1h' },

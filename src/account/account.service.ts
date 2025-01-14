@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   HttpException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,6 +18,12 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import axios from 'axios';
+import { Otp } from './entities/otp.entity';
+import {
+  RequestOtpDto,
+  ResetPasswordDto,
+  VerifyOtpDto,
+} from './dto/request-otp';
 
 @Injectable()
 export class AccountService {
@@ -31,6 +38,8 @@ export class AccountService {
     @InjectRepository(Members)
     private readonly memberRepository: Repository<Members>,
     private readonly jwtService: JwtService,
+
+    @InjectRepository(Otp) private otpRepository: Repository<Otp>,
   ) {}
 
   async validateMembership(
@@ -144,7 +153,65 @@ export class AccountService {
       },
     };
   }
+  async requestOtp(dto: RequestOtpDto): Promise<string> {
+    const user = await this.loginRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!user)
+      throw new BadRequestException('User with this email does not exist.');
 
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
+    const otp = this.otpRepository.create({ user, otp: otpCode });
+    await this.otpRepository.save(otp);
+
+    // Send OTP via email
+    // await this.mailerService.sendMail({
+    //   to: dto.email,
+    //   subject: 'Your Password Reset OTP',
+    //   text: `Your OTP is ${otpCode}`,
+    // });
+
+    console.log(`Your OTP is ${otpCode}`);
+    return 'OTP sent to email.';
+  }
+
+  async verifyOtp(dto: VerifyOtpDto): Promise<string> {
+    const user = await this.loginRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!user)
+      throw new BadRequestException('User with this email does not exist.');
+
+    const otp = await this.otpRepository.findOne({
+      where: { user, otp: dto.otp, verified: false },
+    });
+    if (!otp) throw new BadRequestException('Invalid or expired OTP.');
+
+    otp.verified = true;
+    await this.otpRepository.save(otp);
+
+    return 'OTP verified.';
+  }
+  async resetPassword(dto: ResetPasswordDto): Promise<string> {
+    const user = await this.loginRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!user)
+      throw new BadRequestException('User with this email does not exist.');
+
+    const otp = await this.otpRepository.findOne({
+      where: { user, verified: true },
+    });
+    if (!otp) throw new BadRequestException('OTP verification required.');
+
+    user.password = dto.newPassword; // Hash password here
+    await this.loginRepository.save(user);
+
+    // Optionally delete OTP after use
+    await this.otpRepository.delete({ user });
+
+    return 'Password reset successfully.';
+  }
   async login(
     signinDto: SigninDto,
   ): Promise<{ accessToken: string; user: Login }> {

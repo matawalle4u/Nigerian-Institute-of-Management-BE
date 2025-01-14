@@ -16,6 +16,11 @@ import { ValidateMembershipDto } from './dto/validate-membership.dto';
 import { ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import {
+  RequestOtpDto,
+  ResetPasswordDto,
+  VerifyOtpDto,
+} from './dto/request-otp';
 
 @Controller('account')
 export class AccountController {
@@ -51,6 +56,20 @@ export class AccountController {
     return this.accountService.signup(authToken, signupDto);
   }
 
+  @Post('request-otp')
+  async requestOtp(@Body() dto: RequestOtpDto) {
+    return this.accountService.requestOtp(dto);
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.accountService.verifyOtp(dto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.accountService.resetPassword(dto);
+  }
   @Post('create-user')
   @HttpCode(201)
   async createAccount(@Body() createUserDto: CreateUserDto) {
