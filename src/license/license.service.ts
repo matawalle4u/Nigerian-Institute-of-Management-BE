@@ -125,7 +125,7 @@ export class LicenseService {
       // Fetch the license details
       const licence = await this.licenseRepository.findOne({
         where: { login: { email: email } },
-        relations: ['login'],
+        relations: ['login', 'login.member'],
       });
 
       if (!licence) {

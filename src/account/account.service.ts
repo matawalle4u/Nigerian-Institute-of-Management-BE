@@ -167,11 +167,11 @@ export class AccountService {
     await this.otpRepository.save(otp);
     //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying 
     // Send OTP via email
-    await this.mailerService.sendMail({
-      to: dto.email,
-      subject: 'Your Password Reset OTP',
-      text: `Your OTP is ${otpCode}`,
-    });
+    // await this.mailerService.sendMail({
+    //   to: dto.email,
+    //   subject: 'Your Password Reset OTP',
+    //   text: `Your OTP is ${otpCode}`,
+    // });
 
     console.log(`Your OTP is ${otpCode}`);
     return 'OTP sent to email.';
