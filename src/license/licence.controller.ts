@@ -66,7 +66,7 @@ export class LicenseController {
     @Param() userId: number,
   ) {
     console.log(authToken, userId);
-    const license = await this.licenseService.getUserLicense(authToken, userId);
+    const license = await this.licenseService.getUserLicense(authToken);
     if (!license) {
       return {
         message: `License not found for the specified user with ID ${userId}`,
