@@ -10,6 +10,7 @@ export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(Login)
     private readonly userRepository: Repository<Login>,
   ) {}
 
