@@ -6,9 +6,8 @@ import { CreateGeneralNotificationDto } from './dto/create-general-notification.
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  // Create a notification
   @Post('create')
-  async create(createNotificationDto: CreateNotificationDto) {
+  async create(@Body() createNotificationDto: CreateNotificationDto) {
     return this.notificationService.createNotification(createNotificationDto);
   }
   @Post('create/all')
@@ -20,13 +19,11 @@ export class NotificationController {
     );
   }
 
-  // Get all notifications for a login
   @Get(':loginId')
   async findAll(@Param('loginId') loginId: number) {
     return this.notificationService.getNotificationsByLogin(loginId);
   }
 
-  // Mark a notification as read
   @Patch(':id/read')
   async markAsRead(@Param('id') id: number) {
     return this.notificationService.markAsRead(id);

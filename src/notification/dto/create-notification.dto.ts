@@ -10,21 +10,21 @@ export class CreateNotificationDto {
   })
   loginId: number;
 
-  @IsNotEmpty()
-  @IsString()
   @ApiProperty({
     example: 'Notification title',
     description: 'Title Of the notification',
     required: true,
   })
-  title: string;
-
   @IsNotEmpty()
   @IsString()
+  title: string;
+
   @ApiProperty({
     example: 'Notification message',
     description: 'Content of the notification',
     required: true,
   })
+  @IsNotEmpty()
+  @IsString()
   message: string;
 }
