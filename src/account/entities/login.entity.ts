@@ -10,6 +10,7 @@ import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 import { Bill } from 'src/billing/entities/bill.entity';
 import { Otp } from './otp.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('login')
 export class Login {
@@ -19,6 +20,7 @@ export class Login {
   username: string;
   @Column({ length: 64, nullable: false, unique: true })
   email: string;
+  @Exclude()
   @Column({ length: 128 }) // Password should not be selected by default
   password: string;
   @Column({ type: 'enum', enum: ['no', 'yes'], default: 'no' })

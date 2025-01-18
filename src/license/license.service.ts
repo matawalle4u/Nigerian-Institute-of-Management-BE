@@ -126,6 +126,28 @@ export class LicenseService {
       const licence = await this.licenseRepository.findOne({
         where: { login: { email: email } },
         relations: ['login', 'login.member'],
+        select: {
+          licenseNo: true,
+          login: {
+            id: true,
+            username: true,
+            email: true,
+            default_password: true,
+            authority: true,
+            status: true,
+            member: {
+              memberNo: true,
+              firstName: true,
+              lastName: true,
+              phone: true,
+
+              loginId: {
+                email: true,
+                authority: true,
+              },
+            },
+          },
+        },
       });
 
       if (!licence) {

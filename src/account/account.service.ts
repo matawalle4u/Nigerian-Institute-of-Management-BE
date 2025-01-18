@@ -72,7 +72,7 @@ export class AccountService {
     }
 
     const payload = { memberId: user.id, memberNo: user.memberNo };
-    const token = this.jwtService.sign(payload, { expiresIn: '30m' });
+    const token = this.jwtService.sign(payload);
     return {
       accessToken: token,
       user: {
