@@ -1,23 +1,34 @@
-import { Controller, Get, Param, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Param, Patch, Body } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { CreateGeneralNotificationDto } from './dto/create-general-notification.dto';
 @Controller('notifications')
 export class NotificationController {
-  private readonly logger = new Logger(NotificationController.name);
-
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Post('send')
-  async sendNotification(
-    @Body('recipientId') recipientId: string,
-    @Body('message') message: string,
-  ): Promise<{ message: string }> {
-    await this.notificationService.sendNotification(recipientId, message);
-    return { message: 'Notification sent successfully' };
+  // Create a notification
+  @Post('create')
+  async create(createNotificationDto: CreateNotificationDto) {
+    return this.notificationService.createNotification(createNotificationDto);
+  }
+  @Post('create/all')
+  async createBillForAllUsers(
+    @Body() generalNotificationDto: CreateGeneralNotificationDto,
+  ) {
+    return this.notificationService.createGeneralNotification(
+      generalNotificationDto,
+    );
   }
 
-  @Get(':userId')
-  async getNotifications(@Param('userId') userId: string): Promise<any[]> {
-    return await this.notificationService.getNotificationsForUser(userId);
+  // Get all notifications for a login
+  @Get(':loginId')
+  async findAll(@Param('loginId') loginId: number) {
+    return this.notificationService.getNotificationsByLogin(loginId);
+  }
+
+  // Mark a notification as read
+  @Patch(':id/read')
+  async markAsRead(@Param('id') id: number) {
+    return this.notificationService.markAsRead(id);
   }
 }
