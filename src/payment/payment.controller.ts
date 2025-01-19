@@ -35,6 +35,12 @@ export class PaymentController {
     return payments;
   }
 
+  @Post('interswithc-auth')
+  async interswitchAuth(): Promise<any[]> {
+    const auth = await this.paymentService.interSwitchAuth();
+    return auth;
+  }
+
   @Get('history/:userId')
   async getPaymentHistory(
     @Param('userId') userId: number,

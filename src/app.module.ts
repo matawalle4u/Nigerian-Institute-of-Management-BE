@@ -14,6 +14,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { BillingModule } from './billing/billing.module';
 import { NotificationModule } from './notification/notification.module';
+import { ZoneModule } from './zone/zone.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { NotificationModule } from './notification/notification.module';
     NimEventsModule,
     BillingModule,
     NotificationModule,
+    ZoneModule,
   ],
 })
 export class AppModule {}

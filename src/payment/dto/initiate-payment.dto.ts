@@ -1,21 +1,29 @@
-import { IsEmail, IsNotEmpty, IsString, IsNumber, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  Min,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
 export class InitiatePaymentDto {
   @ApiProperty({
     description: 'Name of the payer',
     example: 'Adam Mustapha',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiProperty({
     description: 'Payer email address',
     example: 'adam@byteflow.com.ng',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @ApiProperty({
     description: 'Amount in figures',
@@ -26,15 +34,41 @@ export class InitiatePaymentDto {
   @Min(1)
   amount: number;
 
+  @ApiProperty({
+    description: 'Callback URL',
+    example: 'https://example.com/callback',
+  })
   @IsString()
-  @IsNotEmpty()
-  callbackUrl: string;
+  callbackUrl?: string;
 
   @ApiProperty({
     description: 'Description of the payment',
     example: 'Payment for Membership upgrade',
   })
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  description?: string;
+
+  @ApiProperty({
+    description: 'Unique transaction reference (specific to some providers)',
+    example: 'QWERTY143SADY',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  transactionRef?: string;
+
+  @ApiProperty({
+    description: 'Payer email address',
+    example: 'adam@byteflow.com.ng',
+  })
+  @IsOptional()
+  @IsEmail()
+  customerId?: string;
+
+  @ApiProperty({
+    description: 'Currency e.g NGN for Naira, USD for dollar',
+    example: 'NGN',
+  })
+  @IsString()
+  currency: string;
 }

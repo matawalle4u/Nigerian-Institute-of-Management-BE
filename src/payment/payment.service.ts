@@ -12,6 +12,8 @@ import { AxiosResponse } from '../types/axios-response.type';
 import { License } from 'src/license/entities/license.entity';
 import { PaymentProviderFactory } from './providers/payment-provider.factory';
 import { Bill } from 'src/billing/entities/bill.entity';
+import { PaystackProvider } from './providers/paystack.provider';
+import { InterswitchProvider } from './providers/interswitch.provider';
 @Injectable()
 export class PaymentService {
   private readonly paystackBaseUrl = 'https://api.paystack.co';
@@ -34,8 +36,27 @@ export class PaymentService {
     private readonly paymentFactory: PaymentProviderFactory,
     @InjectRepository(Bill)
     private billRepository: Repository<Bill>,
+
+    private readonly paystackProvider: PaystackProvider,
+    private readonly interswitchProvider: InterswitchProvider,
   ) {}
 
+  async initiatePayment(
+    provider: 'paystack' | 'interswitch',
+    initiatePaymentDto: InitiatePaymentDto,
+  ): Promise<any> {
+    switch (provider) {
+      case 'paystack':
+        return this.paystackProvider.initializePayment(initiatePaymentDto);
+      case 'interswitch':
+        return this.interswitchProvider.initializePayment(initiatePaymentDto);
+      default:
+        throw new Error('Invalid payment provider');
+    }
+  }
+  async interSwitchAuth(): Promise<any> {
+    return this.interswitchProvider.authenticate();
+  }
   async getOutstandingPayments(userId: number): Promise<Payment[]> {
     return this.paymentRepository.find({
       where: { payers: { id: userId }, status: null },
@@ -97,13 +118,13 @@ export class PaymentService {
     return outstandingYears;
   }
 
-  async initiatePayment(
-    provider: 'paystack' | 'interswitch',
-    initiatePaymentDto: InitiatePaymentDto,
-  ): Promise<any> {
-    const paymentProvider = this.paymentFactory.getProvider(provider);
-    return paymentProvider.initializePayment(initiatePaymentDto);
-  }
+  // async initiatePayment(
+  //   provider: 'paystack' | 'interswitch',
+  //   initiatePaymentDto: InitiatePaymentDto,
+  // ): Promise<any> {
+  //   const paymentProvider = this.paymentFactory.getProvider(provider);
+  //   return paymentProvider.initializePayment(initiatePaymentDto);
+  // }
   /**
    * Verify a payment
    * @param reference

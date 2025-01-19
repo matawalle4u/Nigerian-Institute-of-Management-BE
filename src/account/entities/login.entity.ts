@@ -21,7 +21,7 @@ export class Login {
   @Column({ length: 64, nullable: false, unique: true })
   email: string;
   @Exclude()
-  @Column({ length: 128 }) // Password should not be selected by default
+  @Column({ length: 128 })
   password: string;
   @Column({ type: 'enum', enum: ['no', 'yes'], default: 'no' })
   default_password: 'no' | 'yes';
