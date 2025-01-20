@@ -165,7 +165,7 @@ export class AccountService {
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
     const otp = this.otpRepository.create({ user, otp: otpCode });
     await this.otpRepository.save(otp);
-    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying 
+    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying
     // Send OTP via email
     // await this.mailerService.sendMail({
     //   to: dto.email,
