@@ -62,10 +62,6 @@ export class InterswitchProvider implements PaymentProvider {
         pin: '1111',
       };
 
-      // 5061 0502 6581 9556 486
-      // Valid 01/26
-      // CVV 112
-
       const auu = getAuthData(options);
       console.log(auu);
 
