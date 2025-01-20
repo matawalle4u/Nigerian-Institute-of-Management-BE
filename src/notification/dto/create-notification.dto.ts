@@ -27,4 +27,13 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   @IsString()
   message: string;
+
+  @ApiProperty({
+    example: 'Notification type',
+    description: 'Type of the notification',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  type: string;
 }
