@@ -29,7 +29,6 @@ export class InterswitchProvider implements PaymentProvider {
     const authData = process.env.INTERSWITCH_TEST_AUTH_DATA;
     const token = await this.getAccessToken();
 
-    
     const { customerId, amount, ...otherFields } = initiatePaymentDto; // Destructure necessary fields
     const purchasePayload = {
       ...otherFields,
