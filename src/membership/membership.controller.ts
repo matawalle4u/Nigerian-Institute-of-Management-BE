@@ -108,10 +108,21 @@ export class MembershipController {
   createCriteria(@Body() createCriteriaDto: CreateCriteriaDto) {
     return this.membershipService.createCriteria(createCriteriaDto);
   }
+  @Get('criteria/:id')
+  @ApiOperation({ summary: 'Retrieve a single criteria by ID' })
+  fetchCriteria(@Param('id') id: number) {
+    return this.membershipService.fetchCriteria(id);
+  }
   @Post('create-grade')
   @ApiOperation({ summary: 'Create Membership Grade' })
   createGrade(@Body() createGradeDto: CreateGradeDto) {
     return this.membershipService.createGrade(createGradeDto);
+  }
+
+  @Get('grade/:gradeName')
+  @ApiOperation({ summary: 'Retrieve a single grade by Name' })
+  fetchGrade(@Param('gradeName') gradeName: string) {
+    return this.membershipService.fetchGrade(gradeName);
   }
 
   @Post('upgrade/:userId')

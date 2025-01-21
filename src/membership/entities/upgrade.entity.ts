@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Members } from './membership.entity';
+import { Grade } from './grade.entity';
 
 @Entity('upgrade')
 export class Upgrade {
@@ -9,11 +10,11 @@ export class Upgrade {
   @ManyToOne(() => Members, { nullable: false, onDelete: 'CASCADE' })
   member: Members;
 
-  @Column()
-  currentGrade: string;
+  @ManyToOne(() => Grade, { nullable: false, onDelete: 'CASCADE' })
+  currentGrade: Grade;
 
-  @Column({ nullable: true })
-  nextGrade: string;
+  @ManyToOne(() => Grade, { nullable: false, onDelete: 'CASCADE' })
+  nextGrade: Grade;
 
   @Column({ type: 'boolean', default: false })
   isUpgradeEligible: boolean;

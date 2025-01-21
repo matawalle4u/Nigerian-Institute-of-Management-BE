@@ -43,6 +43,16 @@ export class MembershipService {
       where: { id },
       relations: ['loginId'],
     });
+
+    const grandeName = (await member).grade;
+    const prio = (await this.fetchGrade(grandeName)).priority;
+    // const prio = gradeDetails.priority;
+    const nextGradeDetails = (
+      await this.gradeRepo.findOne({ where: { id: prio + 1 } })
+    ).gradeName;
+
+    console.log(grandeName, 'To ', nextGradeDetails);
+    console.log(await this.fetchGrade(nextGradeDetails));
     return member;
   }
 
@@ -104,8 +114,11 @@ export class MembershipService {
     return this.criteriaRepo.save(criteria);
   }
 
-  async fetchCriteria(grade: string): Promise<Criteria> {
-    const criteria = await this.criteriaRepo.findOne({ where: { grade } });
+  async fetchCriteria(id: number): Promise<Criteria> {
+    const criteria = await this.criteriaRepo.findOne({
+      where: { id },
+      select: ['requirements'],
+    });
     if (!criteria) {
       throw new NotFoundException('Criteria not found for this grade');
     }
@@ -117,17 +130,29 @@ export class MembershipService {
     return this.gradeRepo.save(criteria);
   }
 
-  async checkEligibility(userId: number): Promise<boolean> {
-    const membership = await this.memberRepository.findOne({
-      where: { id: userId },
+  async fetchGrade(gradeName: string): Promise<Grade> {
+    const grade = await this.gradeRepo.findOne({
+      where: { gradeName },
+      relations: ['criteria'],
     });
-    //TODO fetch grade from members where userid, pass the grade to fetch criteria
-    const criteria = await this.fetchCriteria(membership.grade);
-
-    // Simulate eligibility check based on criteria (e.g., points, activity)
-    const userPoints = 100; // Example: Fetch user points
-    return userPoints >= criteria.requirements.minimumPoints;
+    if (!grade) {
+      throw new NotFoundException('Grade not found');
+    }
+    return grade;
   }
+
+  // async checkEligibility(userId: number): Promise<boolean> {
+  //   const membership = await this.memberRepository.findOne({
+  //     where: { id: userId },
+  //   });
+  //   //TODO fetch grade from members where userid, pass the grade to fetch criteria
+  //   const  = await this.fetchCriteria(membership.grade);
+
+  //   // Simulate eligibility check based on criteria (e.g., points, activity)
+  //   const userPoints = 100; // Example: Fetch user points
+  //   return userPoints >= criteria.requirements.minimumPoints;
+  // }
+  // associate', 'member', 'fellow', 'companion'
 
   async upgradeMembership(userId: number): Promise<void> {
     const membership = await this.memberRepository.findOne({

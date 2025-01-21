@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsObject } from 'class-validator';
+import { IsNotEmpty, IsObject } from 'class-validator';
 
 interface Requirements {
   minimumPoints: number;
@@ -9,21 +9,11 @@ interface Requirements {
 
 export class CreateCriteriaDto {
   @ApiProperty({
-    example: 'graduate',
-    enum: ['graduate', 'associate', 'member', 'fellow', 'companion'],
-    description: 'Criteria Grade',
-    required: true,
-  })
-  @IsNotEmpty()
-  @IsString()
-  grade: string;
-
-  @ApiProperty({
     example: {
       minimumPoints: 100,
       completedTasks: 10,
     },
-    description: 'Acceptance status',
+    description: 'Criteria',
     required: true,
   })
   @IsNotEmpty()

@@ -1,10 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { Criteria } from '../entities/criteria.entity';
 
 export class CreateGradeDto {
   @ApiPropertyOptional({
     description: 'The name of the grade',
-    example: 'Graduate',
+    example: 'graduate',
   })
   @IsOptional()
   @IsString()
@@ -20,11 +21,19 @@ export class CreateGradeDto {
   paymentAmount: number;
 
   @ApiPropertyOptional({
-    description: 'The criteria description for this grade',
-    example: 'Must complete 15 tasks and earn 150 points',
-    type: 'string',
+    description: 'The grade position according to priority',
+    example: 1,
+    type: 'number',
   })
   @IsOptional()
-  @IsString()
-  criteriaDescription: string;
+  @IsNumber()
+  priority: number;
+
+  @ApiPropertyOptional({
+    description: 'The criteria id to map criteria to grade',
+    example: '1',
+    type: 'number',
+  })
+  @IsOptional()
+  criteria: Criteria;
 }
