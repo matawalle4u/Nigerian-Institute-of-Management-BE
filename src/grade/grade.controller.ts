@@ -36,7 +36,7 @@ export class GradeController {
     return this.gradeService.allGrade();
   }
 
-  @Get('grade/:gradeName')
+  @Get(':gradeName')
   @ApiOperation({ summary: 'Retrieve a single grade by Name' })
   fetchGrade(@Param('gradeName') gradeName: string) {
     return this.gradeService.fetchGrade(gradeName);

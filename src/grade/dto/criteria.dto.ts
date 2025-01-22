@@ -5,6 +5,7 @@ interface Requirements {
   minimumPoints: number;
   tasksCompleted: number;
   paid: boolean;
+  cumulative_cp: number;
 }
 
 export class CreateCriteriaDto {
