@@ -36,7 +36,7 @@ export class GradeService {
   async getUserGradeHistory(loginId: number) {
     return this.upgradeRepo.find({
       where: { loginId },
-      relations: ['user', 'postedBy'],
+      relations: ['member'],
       order: { date: 'DESC' },
     });
   }
