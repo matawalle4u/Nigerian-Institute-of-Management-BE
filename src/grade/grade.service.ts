@@ -1,36 +1,161 @@
 // src/grade/grade.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GradeCriteriaRepository } from './repositories/grade-criteria.repository';
-import { GradeHistoryRepository } from './repositories/grade-history.repository';
+// import { GradeCriteriaRepository } from './repositories/grade-criteria.repository';
+// import { GradeHistoryRepository } from './repositories/grade-history.repository';
+import { Members } from 'src/membership/entities/membership.entity';
+import { Grade } from './entities/grade.entity';
+import { Criteria } from './entities/criteria.entity';
+import { CreateCriteriaDto } from './dto/criteria.dto';
+import { CreateGradeDto } from './dto/grade.dto';
+import { Upgrade } from 'src/membership/entities/upgrade.entity';
 
 @Injectable()
 export class GradeService {
   constructor(
-    @InjectRepository(GradeCriteriaRepository)
-    private readonly criteriaRepository: GradeCriteriaRepository,
+    // @InjectRepository(GradeCriteriaRepository)
+    // private readonly criteriaRepository: GradeCriteriaRepository,
 
-    @InjectRepository(GradeHistoryRepository)
-    private readonly gradeHistoryRepository,
+    // @InjectRepository(GradeHistoryRepository)
+    // private readonly gradeHistoryRepository,
+
+    @InjectRepository(Grade)
+    private readonly gradeRepo,
+
+    @InjectRepository(Criteria)
+    private readonly criteriaRepo,
+
+    @InjectRepository(Upgrade)
+    private readonly upgradeRepo,
+
+    @InjectRepository(Members)
+    private readonly memberRepository,
   ) {}
 
   // Get all criteria for membership upgrade
-  async getCriteria() {
-    return this.criteriaRepository.find();
-  }
-
-  // Apply grade upgrade logic
-  async upgradeMemberGrade(loginId: number, newGrade: string) {
-    // Business logic for upgrading a member's grade
-    // Example: Save the new grade in the `grade_history` table
-    // (use your GradeHistoryRepository or equivalent here)
-    return `Member ${loginId} upgraded to grade ${newGrade}`;
-  }
   async getUserGradeHistory(loginId: number) {
-    return this.gradeHistoryRepository.find({
+    return this.upgradeRepo.find({
       where: { loginId },
       relations: ['user', 'postedBy'],
       order: { date: 'DESC' },
     });
   }
+  async createCriteria(
+    createCriteriaDto: CreateCriteriaDto,
+  ): Promise<Criteria> {
+    const criteria = this.criteriaRepo.create(createCriteriaDto);
+    return this.criteriaRepo.save(criteria);
+  }
+
+  async allCriteria(): Promise<Criteria[]> {
+    const criteria = await this.criteriaRepo.find({ select: ['requirements'] });
+    if (!criteria) {
+      throw new NotFoundException('Criteria not found for this grade');
+    }
+    return criteria;
+  }
+  async fetchCriteria(id: number): Promise<Criteria> {
+    const criteria = await this.criteriaRepo.findOne({
+      where: { id },
+      select: ['requirements'],
+    });
+    if (!criteria) {
+      throw new NotFoundException('Criteria not found for this grade');
+    }
+    return criteria;
+  }
+
+  async createGrade(createGradeDto: CreateGradeDto): Promise<Grade> {
+    const criteria = this.gradeRepo.create(createGradeDto);
+    return this.gradeRepo.save(criteria);
+  }
+  async allGrade(): Promise<Grade[]> {
+    const grade = await this.gradeRepo.find({
+      relations: ['criteria'],
+    });
+    if (!grade) {
+      throw new NotFoundException('Grade not found');
+    }
+    return grade;
+  }
+  async fetchGrade(gradeName: string): Promise<Grade> {
+    const grade = await this.gradeRepo.findOne({
+      where: { gradeName },
+      relations: ['criteria'],
+    });
+    if (!grade) {
+      throw new NotFoundException('Grade not found');
+    }
+    return grade;
+  }
+
+  // async checkEligibility(userId: number): Promise<boolean> {
+  //   const membership = await this.memberRepository.findOne({
+  //     where: { id: userId },
+  //   });
+  //   //TODO fetch grade from members where userid, pass the grade to fetch criteria
+  //   const  = await this.fetchCriteria(membership.grade);
+
+  //   // Simulate eligibility check based on criteria (e.g., points, activity)
+  //   const userPoints = 100; // Example: Fetch user points
+  //   return userPoints >= criteria.requirements.minimumPoints;
+  // }
+  // associate', 'member', 'fellow', 'companion'
+
+  async upgradeMembership(userId: number): Promise<Members> {
+    const membership = await this.memberRepository.findOne({
+      where: { id: userId },
+    });
+
+    //fetch user details to include points,
+    const userGrade = membership.grade;
+    const gradePrio = (await this.fetchGrade(userGrade)).priority;
+    //const prio = (await this.fetchGrade(grandeName)).priority;
+    // const prio = gradeDetails.priority;
+    const nextGradeDetails = await this.gradeRepo.findOne({
+      where: { id: gradePrio + 1 },
+      relations: ['criteria'],
+    });
+
+    // console.log(grandeName, 'To ', nextGradeDetails);
+    // console.log(await this.fetchGrade(nextGradeDetails));
+    const nextGradeName = nextGradeDetails.gradeName;
+    //const nextGradeCriteria = nextGradeDetails.criteria;
+    // const cumulativeCp =
+    //   membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
+
+    // //REMEMBER ALL requirements have to be inputed in the column names in the db;
+
+    // if (!cumulativeCp) {
+    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
+    // }
+
+    console.log(membership, userGrade);
+    // if (!membership.isUpgradeEligible) {
+    //   throw new Error('User is not eligible for an upgrade');
+    // }
+    // const nextGrade = await this.gradeRepo.findOne({
+    //   where: { gradeName: membership.nextGrade },
+    // });
+
+    // if (!nextGrade) {
+    //   throw new NotFoundException('Next grade not found');
+    // }
+
+    // membership.currentGrade = membership.nextGrade;
+    // membership.nextGrade = null;
+    // membership.isUpgradeEligible = false;
+    // membership.hasPaid = false;
+
+    membership.grade = nextGradeName as any;
+    await this.memberRepository.save(membership);
+
+    //save the updgrade
+
+    //await this.membership.save(membership);
+    return membership;
+  }
+  // async obtainnUserCriteria(userId: number){
+
+  // }
 }

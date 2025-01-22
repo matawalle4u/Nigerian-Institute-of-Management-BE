@@ -3,18 +3,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GradeService } from './grade.service';
 import { GradeController } from './grade.controller';
-import { GradeCriteriaRepository } from './repositories/grade-criteria.repository';
+
 import { Grade } from './entities/grade.entity';
-import { GradeHistoryRepository } from './repositories/grade-history.repository';
+import { Criteria } from './entities/criteria.entity';
+import { Upgrade } from 'src/membership/entities/upgrade.entity';
+import { Members } from 'src/membership/entities/membership.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      GradeCriteriaRepository,
-      Grade,
-      GradeHistoryRepository,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Members, Grade, Criteria, Upgrade])],
   controllers: [GradeController],
   providers: [GradeService],
 })

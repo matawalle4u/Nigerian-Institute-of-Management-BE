@@ -12,8 +12,8 @@ import { Members } from './entities/membership.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { MembershipDto } from './dto/membership.dto';
 import { SearchMemberDto } from './dto/search-querry.dto';
-import { CreateCriteriaDto } from './dto/criteria.dto';
-import { CreateGradeDto } from './dto/grade.dto';
+// import { CreateCriteriaDto } from './dto/criteria.dto';
+// import { CreateGradeDto } from './dto/grade.dto';
 
 @ApiTags('members')
 @Controller('members')
@@ -102,42 +102,5 @@ export class MembershipController {
   @ApiResponse({ status: 200, description: 'Member deleted successfully' })
   remove(@Param('id') id: number) {
     return this.membershipService.remove(id);
-  }
-
-  @Post('create-criteria')
-  createCriteria(@Body() createCriteriaDto: CreateCriteriaDto) {
-    return this.membershipService.createCriteria(createCriteriaDto);
-  }
-  @Get('all-criteria')
-  @ApiOperation({ summary: 'Retrieve all criteria' })
-  allCriteria() {
-    return this.membershipService.allCriteria();
-  }
-  @Get('criteria/:id')
-  @ApiOperation({ summary: 'Retrieve a single criteria by ID' })
-  fetchCriteria(@Param('id') id: number) {
-    return this.membershipService.fetchCriteria(id);
-  }
-  @Post('create-grade')
-  @ApiOperation({ summary: 'Create Membership Grade' })
-  createGrade(@Body() createGradeDto: CreateGradeDto) {
-    return this.membershipService.createGrade(createGradeDto);
-  }
-
-  @Get('all-grade')
-  @ApiOperation({ summary: 'Retrieve all' })
-  allGrade() {
-    return this.membershipService.allGrade();
-  }
-
-  @Get('grade/:gradeName')
-  @ApiOperation({ summary: 'Retrieve a single grade by Name' })
-  fetchGrade(@Param('gradeName') gradeName: string) {
-    return this.membershipService.fetchGrade(gradeName);
-  }
-
-  @Post('upgrade/:userId')
-  upgradeMembership(@Param('userId') userId: number) {
-    return this.membershipService.upgradeMembership(userId);
   }
 }

@@ -7,22 +7,15 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Members } from '../entities/membership.entity';
+import { Type } from 'class-transformer';
 
 export class MembershipDto {
-  @ApiProperty({
-    example: 1,
-    description: 'Unique identifier for the member',
-    required: true,
-  })
-  @IsNumber()
-  id: number;
-
   @ApiProperty({
     example: 101,
     description: 'Login ID associated with the member',
     required: true,
   })
-  @IsNumber()
+  @Type(() => Members)
   loginId: Members;
 
   @ApiProperty({
