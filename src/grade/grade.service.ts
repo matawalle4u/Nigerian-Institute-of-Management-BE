@@ -9,6 +9,7 @@ import { Criteria } from './entities/criteria.entity';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
 import { Upgrade } from 'src/membership/entities/upgrade.entity';
+import { InsufficientCpException } from 'src/membership/utils/MembershipExceptions';
 
 @Injectable()
 export class GradeService {
@@ -120,15 +121,15 @@ export class GradeService {
     // console.log(grandeName, 'To ', nextGradeDetails);
     // console.log(await this.fetchGrade(nextGradeDetails));
     const nextGradeName = nextGradeDetails.gradeName;
-    //const nextGradeCriteria = nextGradeDetails.criteria;
-    // const cumulativeCp =
-    //   membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
+    const nextGradeCriteria = nextGradeDetails.criteria;
+    const cumulativeCp =
+      membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
 
-    // //REMEMBER ALL requirements have to be inputed in the column names in the db;
+    //REMEMBER ALL requirements have to be inputed in the column names in the db;
 
-    // if (!cumulativeCp) {
-    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
-    // }
+    if (!cumulativeCp) {
+      throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
+    }
 
     console.log(membership, userGrade);
     // if (!membership.isUpgradeEligible) {
