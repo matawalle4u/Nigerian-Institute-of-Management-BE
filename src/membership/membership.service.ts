@@ -13,6 +13,7 @@ import { Criteria } from './entities/criteria.entity';
 import { Upgrade } from './entities/upgrade.entity';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
+import { InsufficientCpException } from './utils/MembershipExceptions';
 @Injectable()
 export class MembershipService {
   constructor(
@@ -169,9 +170,7 @@ export class MembershipService {
     //REMEMBER ALL requirements have to be inputed in the column names in the db;
 
     if (!cumulativeCp) {
-      throw new Error(
-        `Users cumulative CP did not meetup the required cumulative CP for upgrade to ${nextGradeName}`,
-      );
+      throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
     }
 
     console.log(membership, userGrade);
