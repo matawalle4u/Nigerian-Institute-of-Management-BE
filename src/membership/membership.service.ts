@@ -44,15 +44,6 @@ export class MembershipService {
       relations: ['loginId'],
     });
 
-    const grandeName = (await member).grade;
-    const prio = (await this.fetchGrade(grandeName)).priority;
-    // const prio = gradeDetails.priority;
-    const nextGradeDetails = (
-      await this.gradeRepo.findOne({ where: { id: prio + 1 } })
-    ).gradeName;
-
-    console.log(grandeName, 'To ', nextGradeDetails);
-    console.log(await this.fetchGrade(nextGradeDetails));
     return member;
   }
 
@@ -154,11 +145,36 @@ export class MembershipService {
   // }
   // associate', 'member', 'fellow', 'companion'
 
-  async upgradeMembership(userId: number): Promise<void> {
+  async upgradeMembership(userId: number): Promise<Members> {
     const membership = await this.memberRepository.findOne({
       where: { id: userId },
     });
-    console.log(membership);
+    //fetch user details to include points,
+    const userGrade = membership.grade;
+    const gradePrio = (await this.fetchGrade(userGrade)).priority;
+    //const prio = (await this.fetchGrade(grandeName)).priority;
+    // const prio = gradeDetails.priority;
+    const nextGradeDetails = await this.gradeRepo.findOne({
+      where: { id: gradePrio + 1 },
+      relations: ['criteria'],
+    });
+
+    // console.log(grandeName, 'To ', nextGradeDetails);
+    // console.log(await this.fetchGrade(nextGradeDetails));
+    const nextGradeName = nextGradeDetails.gradeName;
+    const nextGradeCriteria = nextGradeDetails.criteria;
+    const cumulativeCp =
+      membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
+
+    //REMEMBER ALL requirements have to be inputed in the column names in the db;
+
+    if (!cumulativeCp) {
+      throw new Error(
+        `Users cumulative CP did not meetup the required cumulative CP for upgrade to ${nextGradeName}`,
+      );
+    }
+
+    console.log(membership, userGrade);
     // if (!membership.isUpgradeEligible) {
     //   throw new Error('User is not eligible for an upgrade');
     // }
@@ -175,9 +191,15 @@ export class MembershipService {
     // membership.isUpgradeEligible = false;
     // membership.hasPaid = false;
 
+    membership.grade = nextGradeName as any;
+    await this.memberRepository.save(membership);
+
     //save the updgrade
 
     //await this.membership.save(membership);
-    // return membership;
+    return membership;
   }
+  // async obtainnUserCriteria(userId: number){
+
+  // }
 }
