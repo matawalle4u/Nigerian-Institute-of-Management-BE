@@ -1,6 +1,6 @@
 // src/grade/grade.controller.ts
-import { Controller, Get, Patch, Body, Param, Post } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiParam, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Body, Param, Post } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { GradeService } from './grade.service';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
