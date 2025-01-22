@@ -14,6 +14,7 @@ import { Upgrade } from './entities/upgrade.entity';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
 import { InsufficientCpException } from './utils/MembershipExceptions';
+
 @Injectable()
 export class MembershipService {
   constructor(
@@ -106,6 +107,15 @@ export class MembershipService {
     return this.criteriaRepo.save(criteria);
   }
 
+  async allCriteria(): Promise<Criteria[]> {
+    const criteria = await this.criteriaRepo.find({
+      select: ['requirements'],
+    });
+    if (!criteria) {
+      throw new NotFoundException('Criteria not found for this grade');
+    }
+    return criteria;
+  }
   async fetchCriteria(id: number): Promise<Criteria> {
     const criteria = await this.criteriaRepo.findOne({
       where: { id },
@@ -121,7 +131,15 @@ export class MembershipService {
     const criteria = this.gradeRepo.create(createGradeDto);
     return this.gradeRepo.save(criteria);
   }
-
+  async allGrade(): Promise<Grade[]> {
+    const grade = await this.gradeRepo.find({
+      relations: ['criteria'],
+    });
+    if (!grade) {
+      throw new NotFoundException('Grade not found');
+    }
+    return grade;
+  }
   async fetchGrade(gradeName: string): Promise<Grade> {
     const grade = await this.gradeRepo.findOne({
       where: { gradeName },
@@ -150,6 +168,7 @@ export class MembershipService {
     const membership = await this.memberRepository.findOne({
       where: { id: userId },
     });
+
     //fetch user details to include points,
     const userGrade = membership.grade;
     const gradePrio = (await this.fetchGrade(userGrade)).priority;
