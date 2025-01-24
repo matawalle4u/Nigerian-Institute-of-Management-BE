@@ -21,4 +21,7 @@ export class Upgrade {
 
   @Column({ type: 'boolean', default: false })
   hasPaid: boolean;
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  upgradedAt: Date;
 }
