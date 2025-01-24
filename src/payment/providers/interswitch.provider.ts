@@ -17,10 +17,7 @@ export class InterswitchProvider implements PaymentProvider {
   private readonly interswitchClientId = process.env.INTERSWITCH_CLIENT_ID;
   private readonly interswitchToken = process.env.INTERSWITCH_CLIENT_TOKEN;
 
-  private readonly tokenUrl =
-    'https://passport.k8.isw.la/passport/oauth/token?grant_type=client_credentials'; // Adjust based on environment
-  private readonly clientId = '<your_client_id>';
-  private readonly clientSecret = process.env.NTERSWITCH_SECRET_KEY;
+  private readonly tokenUrl = process.env.INTERSWITCH_TOKEN_URL;
   private readonly baseUrl = 'https://qa.interswitchng.com/api/v3/purchases';
 
   async initializePayment(
