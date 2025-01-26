@@ -6,11 +6,14 @@ import { GradeController } from './grade.controller';
 
 import { Grade } from './entities/grade.entity';
 import { Criteria } from './entities/criteria.entity';
-import { Upgrade } from 'src/membership/entities/upgrade.entity';
+import { Upgrade } from './entities/upgrade.entity';
 import { Members } from 'src/membership/entities/membership.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Members, Grade, Criteria, Upgrade])],
+  imports: [
+    TypeOrmModule.forFeature([Members, Grade, Criteria, Upgrade]),
+    Members,
+  ],
   controllers: [GradeController],
   providers: [GradeService],
 })

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -14,6 +15,7 @@ export class Upgrade {
   id: number;
 
   @ManyToOne(() => Members, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'member_id' })
   member: Members;
 
   @ManyToOne(() => Grade, { nullable: false, onDelete: 'CASCADE' })

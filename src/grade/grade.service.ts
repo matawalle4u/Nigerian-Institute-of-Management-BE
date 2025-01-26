@@ -1,25 +1,16 @@
-// src/grade/grade.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-// import { GradeCriteriaRepository } from './repositories/grade-criteria.repository';
-// import { GradeHistoryRepository } from './repositories/grade-history.repository';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Grade } from './entities/grade.entity';
 import { Criteria } from './entities/criteria.entity';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
-import { Upgrade } from 'src/membership/entities/upgrade.entity';
+import { Upgrade } from './entities/upgrade.entity';
 import { InsufficientCpException } from 'src/membership/utils/MembershipExceptions';
 
 @Injectable()
 export class GradeService {
   constructor(
-    // @InjectRepository(GradeCriteriaRepository)
-    // private readonly criteriaRepository: GradeCriteriaRepository,
-
-    // @InjectRepository(GradeHistoryRepository)
-    // private readonly gradeHistoryRepository,
-
     @InjectRepository(Grade)
     private readonly gradeRepo,
 
@@ -170,21 +161,22 @@ export class GradeService {
   ) {
     // const upgradeEntry = {
     //   member: { id: 1 },
-    //   currentGrade: { id: 2 },
-    //   nextGrade: { id: 3 },
+    //   currentGrade: { id: 1 },
+    //   nextGrade: { id: 2 },
     // };
     // const NewUpgrade = this.upgradeRepo.create(upgradeEntry);
     // console.log(upgradeEntry);
     // await this.upgradeRepo.save(NewUpgrade);
+    console.log(userId + 1);
     const lastGrade = await this.upgradeRepo.findOne({
       where: {
         member: { id: userId },
         currentGrade: { gradeName },
       },
-
+      relations: ['member'],
       order: { createdAt: 'DESC' },
     });
-
+    console.log(lastGrade);
     if (!lastGrade) {
       return true;
     }
