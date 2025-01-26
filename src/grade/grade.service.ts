@@ -118,6 +118,7 @@ export class GradeService {
       relations: ['criteria'],
     });
 
+    console.log(nextGradeDetails.gradeName);
     const nextGradeName = nextGradeDetails.gradeName;
     const nextGradeCriteria = nextGradeDetails.criteria;
     const cumulativeCp =
