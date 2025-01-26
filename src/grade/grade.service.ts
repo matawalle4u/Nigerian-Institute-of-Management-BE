@@ -38,7 +38,7 @@ export class GradeService {
     return this.upgradeRepo.find({
       where: { loginId },
       relations: ['member'],
-      order: { date: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
   async createCriteria(
@@ -168,19 +168,20 @@ export class GradeService {
     gradeName: string,
     Xyears: number,
   ) {
-    const upgradeEntry = {
-      member: { id: 1 },
-      currentGrade: { id: 2 },
-      nextGrade: { id: 3 },
-    };
-    const NewUpgrade = this.upgradeRepo.create(upgradeEntry);
-    console.log(upgradeEntry);
-    await this.upgradeRepo.save(NewUpgrade);
+    // const upgradeEntry = {
+    //   member: { id: 1 },
+    //   currentGrade: { id: 2 },
+    //   nextGrade: { id: 3 },
+    // };
+    // const NewUpgrade = this.upgradeRepo.create(upgradeEntry);
+    // console.log(upgradeEntry);
+    // await this.upgradeRepo.save(NewUpgrade);
     const lastGrade = await this.upgradeRepo.findOne({
       where: {
         member: { id: userId },
         currentGrade: { gradeName },
       },
+
       order: { createdAt: 'DESC' },
     });
 
