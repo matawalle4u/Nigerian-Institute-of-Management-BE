@@ -86,7 +86,12 @@ export class GradeService {
     if (!grade) {
       throw new NotFoundException('Grade not found');
     }
-    return grade;
+    const nextGrade = await this.gradeRepo.findOne({
+      where: { id: grade.priority + 1 },
+      relations: ['criteria'],
+    });
+
+    return { ...grade, nextGrade: nextGrade };
   }
 
   // async checkEligibility(userId: number): Promise<boolean> {
