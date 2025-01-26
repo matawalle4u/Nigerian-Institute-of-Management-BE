@@ -6,6 +6,7 @@ interface Requirements {
   tasksCompleted: number;
   paid: boolean;
   cumulative_cp: number;
+  minimum_years: number;
 }
 
 export class CreateCriteriaDto {

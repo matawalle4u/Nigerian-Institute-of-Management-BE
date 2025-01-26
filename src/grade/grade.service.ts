@@ -7,6 +7,8 @@ import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
 import { Upgrade } from './entities/upgrade.entity';
 import { InsufficientCpException } from 'src/membership/utils/MembershipExceptions';
+import { PaymentService } from 'src/payment/payment.service';
+import { Login } from 'src/account/entities/login.entity';
 
 @Injectable()
 export class GradeService {
@@ -22,6 +24,11 @@ export class GradeService {
 
     @InjectRepository(Members)
     private readonly memberRepository,
+
+    @InjectRepository(Login)
+    private readonly loginRepo,
+
+    private readonly paymentService: PaymentService,
   ) {}
 
   // Get all criteria for membership upgrade
@@ -101,7 +108,12 @@ export class GradeService {
 
     //fetch user details to include points,
     const userGrade = membership.grade;
-    const gradePrio = (await this.fetchGrade(userGrade)).priority;
+
+    const gradeEntry = await this.fetchGrade(userGrade);
+    const gradePrio = gradeEntry.priority;
+    const userGradeId = gradeEntry.id;
+    const currentGradeCriteria = gradeEntry.criteria;
+
     //const prio = (await this.fetchGrade(grandeName)).priority;
     // const prio = gradeDetails.priority;
     const nextGradeDetails = await this.gradeRepo.findOne({
@@ -116,35 +128,39 @@ export class GradeService {
 
     //REMEMBER ALL requirements have to be inputed in the column names in the db;
 
-    if (!cumulativeCp) {
-      throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
-    }
-
-    console.log(membership, userGrade);
-    // if (!membership.isUpgradeEligible) {
-    //   throw new Error('User is not eligible for an upgrade');
-    // }
-    // const nextGrade = await this.gradeRepo.findOne({
-    //   where: { gradeName: membership.nextGrade },
-    // });
-
-    // if (!nextGrade) {
-    //   throw new NotFoundException('Next grade not found');
+    // if (!cumulativeCp) {
+    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
     // }
 
-    // membership.currentGrade = membership.nextGrade;
-    // membership.nextGrade = null;
-    // membership.isUpgradeEligible = false;
-    // membership.hasPaid = false;
+    //get outstanding based on memberId to get login.member.id: userId
+    const login = this.loginRepo.findOne({
+      where: {
+        member: {
+          id: userId,
+        },
+      },
+    });
 
+    const userOutstandings =
+      await this.paymentService.getMemberOutstandingPayments(login.id);
+    console.log(userOutstandings);
+    const yearCriteria = await this.gradeIsMoreThanXyears(
+      userId,
+      userGrade,
+      currentGradeCriteria.requirements.minimum_years,
+    );
+    const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
+
+    console.log(conditions);
+    //TODO ensure the below are executed when conditions are met.
     //Update grade on membership table
     membership.grade = nextGradeName as any;
     await this.memberRepository.save(membership);
-
+    console.log(userGradeId);
     //save the upgrade details to the DB
     const NewUpgrade = this.upgradeRepo.create({
       member: membership,
-      currentGrade: userGrade,
+      currentGrade: userGradeId,
       nextGrade: nextGradeDetails,
     });
 
@@ -159,14 +175,6 @@ export class GradeService {
     gradeName: string,
     Xyears: number,
   ) {
-    // const upgradeEntry = {
-    //   member: { id: 1 },
-    //   currentGrade: { id: 1 },
-    //   nextGrade: { id: 2 },
-    // };
-    // const NewUpgrade = this.upgradeRepo.create(upgradeEntry);
-    // console.log(upgradeEntry);
-    // await this.upgradeRepo.save(NewUpgrade);
     console.log(userId + 1);
     const lastGrade = await this.upgradeRepo.findOne({
       where: {
@@ -181,7 +189,6 @@ export class GradeService {
       return true;
     }
 
-    // Check if the upgrade was made more than x years ago
     const xYearsAgo = new Date();
     xYearsAgo.setFullYear(xYearsAgo.getFullYear() - Xyears);
 
