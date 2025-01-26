@@ -18,7 +18,7 @@ export class InterswitchProvider implements PaymentProvider {
   private readonly interswitchToken = process.env.INTERSWITCH_CLIENT_TOKEN;
 
   private readonly tokenUrl = process.env.INTERSWITCH_TOKEN_URL;
-  private readonly baseUrl = 'https://qa.interswitchng.com/api/v3/purchases';
+  private readonly baseUrl = process.env.INTERSWITCH_PURCHASE_URL;
 
   async initializePayment(
     initiatePaymentDto: InitiatePaymentDto,
@@ -26,14 +26,14 @@ export class InterswitchProvider implements PaymentProvider {
     const authData = process.env.INTERSWITCH_TEST_AUTH_DATA;
     const token = await this.getAccessToken();
 
-    const { customerId, amount, ...otherFields } = initiatePaymentDto; // Destructure necessary fields
+    const { customerId, amount, ...otherFields } = initiatePaymentDto;
     const purchasePayload = {
       ...otherFields,
       customerId,
       authData,
       amount,
     };
-    //console.log(purchasePayload, token);
+
     try {
       const response = await axios.post(this.baseUrl, purchasePayload, {
         headers: { Authorization: `Bearer ${token}` },
