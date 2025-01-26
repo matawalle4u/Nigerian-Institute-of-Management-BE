@@ -118,8 +118,6 @@ export class GradeService {
       relations: ['criteria'],
     });
 
-    // console.log(grandeName, 'To ', nextGradeDetails);
-    // console.log(await this.fetchGrade(nextGradeDetails));
     const nextGradeName = nextGradeDetails.gradeName;
     const nextGradeCriteria = nextGradeDetails.criteria;
     const cumulativeCp =
@@ -148,15 +146,52 @@ export class GradeService {
     // membership.isUpgradeEligible = false;
     // membership.hasPaid = false;
 
+    //Update grade on membership table
     membership.grade = nextGradeName as any;
     await this.memberRepository.save(membership);
 
-    //save the updgrade
+    //save the upgrade details to the DB
+    const NewUpgrade = this.upgradeRepo.create({
+      member: membership,
+      currentGrade: userGrade,
+      nextGrade: nextGradeDetails,
+    });
 
-    //await this.membership.save(membership);
-    return membership;
+    //save the updgrade
+    return this.upgradeRepo.save(NewUpgrade);
   }
   // async obtainnUserCriteria(userId: number){
 
   // }
+  async gradeIsMoreThanXyears(
+    userId: number,
+    gradeName: string,
+    Xyears: number,
+  ) {
+    const upgradeEntry = {
+      member: { id: 1 },
+      currentGrade: { id: 2 },
+      nextGrade: { id: 3 },
+    };
+    const NewUpgrade = this.upgradeRepo.create(upgradeEntry);
+    console.log(upgradeEntry);
+    await this.upgradeRepo.save(NewUpgrade);
+    const lastGrade = await this.upgradeRepo.findOne({
+      where: {
+        member: { id: userId },
+        currentGrade: { gradeName },
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!lastGrade) {
+      return true;
+    }
+
+    // Check if the upgrade was made more than x years ago
+    const xYearsAgo = new Date();
+    xYearsAgo.setFullYear(xYearsAgo.getFullYear() - Xyears);
+
+    return lastGrade.createdAt <= xYearsAgo;
+  }
 }

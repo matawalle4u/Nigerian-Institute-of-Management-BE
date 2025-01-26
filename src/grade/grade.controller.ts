@@ -51,4 +51,12 @@ export class GradeController {
   async getUserGradeHistory(@Param('loginId') loginId: number) {
     return this.gradeService.getUserGradeHistory(loginId);
   }
+  @Post('is-grade-upto-x-years')
+  async userSpentRequiredGradeYears(
+    @Param('userId') userId: number,
+    @Param('gradeName') gradeName: string,
+    @Param('XYears') Xyears: number,
+  ): Promise<boolean> {
+    return this.gradeService.gradeIsMoreThanXyears(userId, gradeName, Xyears);
+  }
 }

@@ -4,12 +4,6 @@ import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
 import { MembershipDto } from './dto/membership.dto';
 import { SearchMemberDto } from './dto/search-querry.dto';
-// import { Grade } from './entities/grade.entity';
-// import { Criteria } from './entities/criteria.entity';
-// import { Upgrade } from './entities/upgrade.entity';
-// import { CreateCriteriaDto } from './dto/criteria.dto';
-// import { CreateGradeDto } from './dto/grade.dto';
-// import { InsufficientCpException } from './utils/MembershipExceptions';
 
 @Injectable()
 export class MembershipService {
@@ -82,8 +76,4 @@ export class MembershipService {
   async remove(id: number): Promise<void> {
     await this.memberRepository.delete(id);
   }
-
-  //Add criteria
-  //Add upgrade
-  //add grade
 }

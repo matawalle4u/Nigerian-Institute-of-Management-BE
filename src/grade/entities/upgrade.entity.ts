@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Grade } from './grade.entity';
 
@@ -22,6 +28,6 @@ export class Upgrade {
   @Column({ type: 'boolean', default: false })
   hasPaid: boolean;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  upgradedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 }
