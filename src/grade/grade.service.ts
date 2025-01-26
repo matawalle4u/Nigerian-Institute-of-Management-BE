@@ -10,6 +10,7 @@ import { InsufficientCpException } from 'src/membership/utils/MembershipExceptio
 import { LicenseException } from 'src/license/utils/LicenceExceptions';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Injectable()
 export class GradeService {
@@ -30,6 +31,9 @@ export class GradeService {
     private readonly loginRepo,
 
     private readonly paymentService: PaymentService,
+
+    @InjectRepository(Payment)
+    private readonly paymentRepo,
   ) {}
 
   // Get all criteria for membership upgrade
@@ -94,18 +98,79 @@ export class GradeService {
     return { ...grade, nextGrade: nextGrade };
   }
 
-  // async checkEligibility(userId: number): Promise<boolean> {
-  //   const membership = await this.memberRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   //TODO fetch grade from members where userid, pass the grade to fetch criteria
-  //   const  = await this.fetchCriteria(membership.grade);
+  async checkEligibility(userId: number): Promise<any> {
+    const membership = await this.memberRepository.findOne({
+      where: { id: userId },
+    });
 
-  //   // Simulate eligibility check based on criteria (e.g., points, activity)
-  //   const userPoints = 100; // Example: Fetch user points
-  //   return userPoints >= criteria.requirements.minimumPoints;
-  // }
-  // associate', 'member', 'fellow', 'companion'
+    //fetch user details to include points,
+    const userGrade = membership.grade;
+
+    const gradeEntry = await this.fetchGrade(userGrade);
+    const gradePrio = gradeEntry.priority;
+    const userGradeId = gradeEntry.id;
+    const currentGradeCriteria = gradeEntry.criteria;
+
+    //const prio = (await this.fetchGrade(grandeName)).priority;
+    // const prio = gradeDetails.priority;
+    const nextGradeDetails = await this.gradeRepo.findOne({
+      where: { id: gradePrio + 1 },
+      relations: ['criteria'],
+    });
+
+    const nextGradeName = nextGradeDetails.gradeName;
+    const nextGradeCriteria = nextGradeDetails.criteria;
+    const cumulativeCp =
+      membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
+
+    //REMEMBER ALL requirements have to be inputed in the column names in the db;
+
+    // if (!cumulativeCp) {
+    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
+    // }
+
+    //get outstanding based on memberId to get login.member.id: userId
+    const login = this.loginRepo.findOne({
+      where: {
+        member: {
+          id: userId,
+        },
+      },
+    });
+
+    //Get all outstanding
+    const userOutstandings =
+      await this.paymentService.getMemberOutstandingPayments(login.id);
+
+    //check for year criteria
+    const yearCriteria = await this.gradeIsMoreThanXyears(
+      userId,
+      userGrade,
+      currentGradeCriteria.requirements.minimum_years,
+    );
+
+    //Check for whether the person has made the payment
+    const upgradePaymentMade = await this.paymentRepo.findOne({
+      where: {
+        payers: { id: login.id },
+        otherInfo: `Payment for Membership upgrade from ${userGrade} to ${nextGradeName}`,
+        status: 'success',
+        amount: gradeEntry.paymentAmount,
+      },
+    });
+
+    // console.log(upgradePaymentMade, await this.paymentRepo.find());
+    const errorObject = {
+      cumulativeCp,
+      userOutstandings,
+      yearCriteria,
+      upgradePaymentMade,
+    };
+
+    return errorObject;
+    //console.log(upgradePaymentMade);
+  }
+  //associate', 'member', 'fellow', 'companion'
 
   async upgradeMembership(userId: number): Promise<Members> {
     const membership = await this.memberRepository.findOne({
@@ -147,14 +212,27 @@ export class GradeService {
       },
     });
 
+    //Get all outstanding
     const userOutstandings =
       await this.paymentService.getMemberOutstandingPayments(login.id);
-    console.log(userOutstandings);
+
+    //check for year criteria
     const yearCriteria = await this.gradeIsMoreThanXyears(
       userId,
       userGrade,
       currentGradeCriteria.requirements.minimum_years,
     );
+
+    //Check for whether the person has made the payment
+    const upgradePaymentMade = this.paymentRepo.findOne({
+      where: {
+        payers: { id: login.id },
+        otherInfo: `Membership upgrade from ${userGrade} to ${nextGradeName}`,
+        status: 'success',
+        amount: gradeEntry.paymentAmount,
+      },
+    });
+    console.log(upgradePaymentMade);
 
     if (userOutstandings) {
       throw new LicenseException('You need to settle outstanding bills');
@@ -166,7 +244,7 @@ export class GradeService {
     //Update grade on membership table
     membership.grade = nextGradeName as any;
     await this.memberRepository.save(membership);
-    console.log(userGradeId);
+
     //save the upgrade details to the DB
     const NewUpgrade = this.upgradeRepo.create({
       member: membership,
@@ -177,15 +255,12 @@ export class GradeService {
     //save the updgrade
     return this.upgradeRepo.save(NewUpgrade);
   }
-  // async obtainnUserCriteria(userId: number){
 
-  // }
   async gradeIsMoreThanXyears(
     userId: number,
     gradeName: string,
     Xyears: number,
   ) {
-    console.log(userId + 1);
     const lastGrade = await this.upgradeRepo.findOne({
       where: {
         member: { id: userId },

@@ -47,6 +47,11 @@ export class GradeController {
     return this.gradeService.upgradeMembership(userId);
   }
 
+  @Post('upgrade/user-eligible/:userId')
+  eligibleForUpgrade(@Param('userId') userId: number) {
+    return this.gradeService.checkEligibility(userId);
+  }
+
   @Get('ugrade/history/:loginId')
   async getUserGradeHistory(@Param('loginId') loginId: number) {
     return this.gradeService.getUserGradeHistory(loginId);
