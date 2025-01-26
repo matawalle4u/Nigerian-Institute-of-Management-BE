@@ -35,7 +35,7 @@ export class GradeService {
   // Get all criteria for membership upgrade
   async getUserGradeHistory(loginId: number) {
     return this.upgradeRepo.find({
-      where: { loginId },
+      where: { member: { id: loginId } },
       relations: ['member'],
       order: { createdAt: 'DESC' },
     });
