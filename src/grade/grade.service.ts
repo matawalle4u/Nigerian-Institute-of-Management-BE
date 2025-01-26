@@ -7,6 +7,7 @@ import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
 import { Upgrade } from './entities/upgrade.entity';
 import { InsufficientCpException } from 'src/membership/utils/MembershipExceptions';
+import { LicenseException } from 'src/license/utils/LicenceExceptions';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
 
@@ -149,6 +150,10 @@ export class GradeService {
       userGrade,
       currentGradeCriteria.requirements.minimum_years,
     );
+
+    if (userOutstandings) {
+      throw new LicenseException('You need to settle outstanding bills');
+    }
     const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
 
     console.log(conditions);
