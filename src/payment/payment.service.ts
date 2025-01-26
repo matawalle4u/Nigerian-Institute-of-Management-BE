@@ -81,7 +81,7 @@ export class PaymentService {
     userId: number,
   ): Promise<{ year: number; description: string; amount: number }[]> {
     const currentYear = new Date().getFullYear();
-    const baseYear = 2024;
+    const baseYear = 2025;
     const requiredDescription = 'License';
     const requiredAmount = 10000;
     const kwanan_wata = new Date();
@@ -118,18 +118,6 @@ export class PaymentService {
     return outstandingYears;
   }
 
-  // async initiatePayment(
-  //   provider: 'paystack' | 'interswitch',
-  //   initiatePaymentDto: InitiatePaymentDto,
-  // ): Promise<any> {
-  //   const paymentProvider = this.paymentFactory.getProvider(provider);
-  //   return paymentProvider.initializePayment(initiatePaymentDto);
-  // }
-  /**
-   * Verify a payment
-   * @param reference
-   * @returns Paystack payment verification response
-   */
   async verifyPayment(reference: string): Promise<PaymentData> {
     try {
       const response: AxiosResponse<PaystackResponse<PaymentData>> =
@@ -186,4 +174,6 @@ export class PaymentService {
   async getAll() {
     return this.paymentRepository.find();
   }
+
+  
 }
