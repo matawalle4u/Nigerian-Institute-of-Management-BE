@@ -163,9 +163,9 @@ export class GradeService {
     // console.log(upgradePaymentMade, await this.paymentRepo.find());
     const errorObject = {
       cumulativeCp,
-      userOutstandings,
+      userOutstandings: !!userOutstandings,
       yearCriteria,
-      upgradePaymentMade,
+      upgradePaymentMade: !!upgradePaymentMade,
     };
 
     return errorObject;
