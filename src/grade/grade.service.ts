@@ -103,16 +103,12 @@ export class GradeService {
       where: { id: userId },
     });
 
-    //fetch user details to include points,
     const userGrade = membership.grade;
 
     const gradeEntry = await this.fetchGrade(userGrade);
     const gradePrio = gradeEntry.priority;
-    const userGradeId = gradeEntry.id;
     const currentGradeCriteria = gradeEntry.criteria;
 
-    //const prio = (await this.fetchGrade(grandeName)).priority;
-    // const prio = gradeDetails.priority;
     const nextGradeDetails = await this.gradeRepo.findOne({
       where: { id: gradePrio + 1 },
       relations: ['criteria'],
@@ -124,13 +120,6 @@ export class GradeService {
     const cumulativeCp =
       membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
 
-    //REMEMBER ALL requirements have to be inputed in the column names in the db;
-
-    // if (!cumulativeCp) {
-    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
-    // }
-
-    //get outstanding based on memberId to get login.member.id: userId
     const login = this.loginRepo.findOne({
       where: {
         member: {
@@ -163,15 +152,13 @@ export class GradeService {
     // console.log(upgradePaymentMade, await this.paymentRepo.find());
     const errorObject = {
       cumulativeCp,
-      userOutstandings: !!userOutstandings,
+      userOutstandings,
       yearCriteria,
-      upgradePaymentMade: !!upgradePaymentMade,
+      upgradePaymentMade,
     };
 
     return errorObject;
-    //console.log(upgradePaymentMade);
   }
-  //associate', 'member', 'fellow', 'companion'
 
   async upgradeMembership(userId: number): Promise<Members> {
     const membership = await this.memberRepository.findOne({
@@ -225,15 +212,7 @@ export class GradeService {
     );
 
     //Check for whether the person has made the payment
-    const upgradePaymentMade = this.paymentRepo.findOne({
-      where: {
-        payers: { id: login.id },
-        otherInfo: `Membership upgrade from ${userGrade} to ${nextGradeName}`,
-        status: 'success',
-        amount: gradeEntry.paymentAmount,
-      },
-    });
-    console.log(upgradePaymentMade);
+
 
     if (!!userOutstandings) {
       throw new LicenseException('You need to settle outstanding bills');
