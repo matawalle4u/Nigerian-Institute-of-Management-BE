@@ -235,7 +235,7 @@ export class GradeService {
     });
     console.log(upgradePaymentMade);
 
-    if (userOutstandings) {
+    if (!!userOutstandings) {
       throw new LicenseException('You need to settle outstanding bills');
     }
     const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
