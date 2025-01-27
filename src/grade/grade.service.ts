@@ -131,7 +131,7 @@ export class GradeService {
     //Get all outstanding
     const userOutstandings =
       await this.paymentService.getMemberOutstandingPayments(login.id);
-
+    console.log(userOutstandings);
     //check for year criteria
     const yearCriteria = await this.gradeIsMoreThanXyears(
       userId,
@@ -214,9 +214,9 @@ export class GradeService {
     //Check for whether the person has made the payment
 
 
-    if (!!userOutstandings) {
-      throw new LicenseException('You need to settle outstanding bills');
-    }
+    // if (!!userOutstandings) {
+    //   throw new LicenseException('You need to settle outstanding bills');
+    // }
     const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
 
     console.log(conditions);
