@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Grade } from './entities/grade.entity';
@@ -103,24 +103,28 @@ export class GradeService {
       where: { id: userId },
     });
 
-    const userGrade = membership.grade;
+    if (!membership) {
+      throw new UnauthorizedException(
+        `No user found with the membership id ${userId}`,
+      );
+    }
 
-    const gradeEntry = await this.fetchGrade(userGrade);
-    const gradePrio = gradeEntry.priority;
-    const currentGradeCriteria = gradeEntry.criteria;
+    const gradeEntry = await this.fetchGrade(membership.grade);
 
     const nextGradeDetails = await this.gradeRepo.findOne({
-      where: { id: gradePrio + 1 },
+      where: { id: gradeEntry.priority + 1 },
       relations: ['criteria'],
     });
 
-    console.log(nextGradeDetails.gradeName);
-    const nextGradeName = nextGradeDetails.gradeName;
-    const nextGradeCriteria = nextGradeDetails.criteria;
-    const cumulativeCp =
-      membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
+    if (!nextGradeDetails) {
+      throw new NotFoundException('grade has no next grade');
+    }
 
-    const login = this.loginRepo.findOne({
+    const cumulativeCp =
+      membership.cumulativeCp >=
+      nextGradeDetails.criteria.requirements.cumulative_cp;
+
+    const login = await this.loginRepo.findOne({
       where: {
         member: {
           id: userId,
@@ -128,31 +132,37 @@ export class GradeService {
       },
     });
 
+    if (!login) {
+      throw new NotFoundException(
+        `No login available for member with id ${userId}`,
+      );
+    }
+
     //Get all outstanding
-    const userOutstandings =
-      await this.paymentService.getMemberOutstandingPayments(login.id);
-    console.log(userOutstandings);
+    const outstnd = await this.paymentService.getMemberOutstandingPayments(
+      login.id,
+    );
+
     //check for year criteria
     const yearCriteria = await this.gradeIsMoreThanXyears(
       userId,
-      userGrade,
-      currentGradeCriteria.requirements.minimum_years,
+      membership.grade,
+      gradeEntry.criteria.requirements.minimum_years,
     );
 
     //Check for whether the person has made the payment
     const upgradePaymentMade = await this.paymentRepo.findOne({
       where: {
         payers: { id: login.id },
-        otherInfo: `Payment for Membership upgrade from ${userGrade} to ${nextGradeName}`,
+        otherInfo: `Payment for Membership upgrade from ${membership.grade} to ${nextGradeDetails.gradeName}`,
         status: 'success',
         amount: gradeEntry.paymentAmount,
       },
     });
 
-    // console.log(upgradePaymentMade, await this.paymentRepo.find());
     const errorObject = {
       cumulativeCp,
-      userOutstandings,
+      outstnd,
       yearCriteria,
       upgradePaymentMade,
     };
@@ -173,8 +183,6 @@ export class GradeService {
     const userGradeId = gradeEntry.id;
     const currentGradeCriteria = gradeEntry.criteria;
 
-    //const prio = (await this.fetchGrade(grandeName)).priority;
-    // const prio = gradeDetails.priority;
     const nextGradeDetails = await this.gradeRepo.findOne({
       where: { id: gradePrio + 1 },
       relations: ['criteria'],
@@ -184,12 +192,6 @@ export class GradeService {
     const nextGradeCriteria = nextGradeDetails.criteria;
     const cumulativeCp =
       membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;
-
-    //REMEMBER ALL requirements have to be inputed in the column names in the db;
-
-    // if (!cumulativeCp) {
-    //   throw new InsufficientCpException(`Cannot upgrade to ${nextGradeName}`);
-    // }
 
     //get outstanding based on memberId to get login.member.id: userId
     const login = this.loginRepo.findOne({
@@ -212,16 +214,9 @@ export class GradeService {
     );
 
     //Check for whether the person has made the payment
-
-
-    // if (!!userOutstandings) {
-    //   throw new LicenseException('You need to settle outstanding bills');
-    // }
     const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
 
     console.log(conditions);
-    //TODO ensure the below are executed when conditions are met.
-    //Update grade on membership table
     membership.grade = nextGradeName as any;
     await this.memberRepository.save(membership);
 
