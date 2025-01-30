@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Login } from 'src/account/entities/login.entity';
 
 @Entity('payment')
@@ -7,6 +7,7 @@ export class Payment {
   paymentId: string;
 
   @ManyToOne(() => Login, (login) => login.payments)
+  @JoinColumn({ name: 'payers' })
   payers: Login;
 
   @Column('decimal', { precision: 10, scale: 2 })
