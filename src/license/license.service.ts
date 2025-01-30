@@ -11,6 +11,7 @@ import { PaymentOutStandingException } from 'src/payment/utils/OutstandingPaymen
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 import { LicenseException } from './utils/LicenceExceptions';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class LicenseService {
@@ -24,6 +25,8 @@ export class LicenseService {
     private readonly memberRepository: Repository<Members>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+
+    private readonly paymentService: PaymentService,
   ) {}
 
   async addLicense(
@@ -44,15 +47,20 @@ export class LicenseService {
       throw new Error('Login not found');
     }
 
-    //retrieve the member outstanding balance and prompt to pay
-    //console.log(login.member);
-    //console.log(login.member.cumulativeCp <= 0);
-
-    if (login.member.cumulativeCp <= 0) {
+    // if (login.member.cumulativeCp <= 0) {
+    //   return new PaymentOutStandingException(
+    //     'Please pay all outstanding fees!',
+    //   );
+    // }
+    //Check for all outstanding 
+    const unpaidBills = await this.paymentService.getMemberUnpaidBills(login.id);
+    if (unpaidBills.length < 1){
       return new PaymentOutStandingException(
         'Please pay all outstanding fees!',
       );
     }
+
+    console.log(unpaidBills);
 
     const license = this.licenseRepository.create({
       ...createLicenseDto,
@@ -165,11 +173,11 @@ export class LicenseService {
       }
 
       // Check cumulative CP and throw an exception if necessary
-      if (member.cumulativeCp) {
-        throw new PaymentOutStandingException(
-          'Please pay all outstanding fees!',
-        );
-      }
+      // if (member.cumulativeCp) {
+      //   throw new PaymentOutStandingException(
+      //     'Please pay all outstanding fees!',
+      //   );
+      // }
 
       // Check for license expiration
       const expired = await this.isLicenseExpired(email);

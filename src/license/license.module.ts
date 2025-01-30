@@ -8,6 +8,7 @@ import { Login } from 'src/account/entities/login.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Payment } from 'src/payment/entities/payment.entity';
       signOptions: { expiresIn: '1h' },
     }),
     AccountModule,
+    PaymentModule,
   ],
   providers: [LicenseService],
   controllers: [LicenseController],
