@@ -146,12 +146,12 @@ export class LicenseService {
             authority: true,
             status: true,
             member: {
-              memberNo: true,
-              firstName: true,
-              lastName: true,
+              member_no: true,
+              first_name: true,
+              last_name: true,
               phone: true,
 
-              loginId: {
+              login_id: {
                 email: true,
                 authority: true,
               },
@@ -166,7 +166,7 @@ export class LicenseService {
 
       // Fetch the member details
       const member = await this.memberRepository.findOne({
-        where: { loginId: { id: licence.login.id } },
+        where: { login_id: { id: licence.login.id } },
         relations: ['loginId'],
       });
 

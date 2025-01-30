@@ -14,20 +14,20 @@ export class Members {
   id: number;
 
   @OneToOne(() => Login, (login) => login.member, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  loginId: Login;
+  @JoinColumn({ name: 'login_id' })
+  login_id: Login;
 
-  @Column()
+  @Column({ name: 'member_no' })
   @ApiProperty({ example: 'MEM12345', description: 'Unique member number' })
-  memberNo: string;
+  member_no: string;
 
   @Column()
   @ApiProperty({ example: 'John', description: 'First name of the member' })
-  firstName: string;
+  first_name: string;
 
   @Column()
   @ApiProperty({ example: 'Doe', description: 'Last name of the member' })
-  lastName: string;
+  last_name: string;
 
   @Column({ nullable: true })
   @ApiProperty({
@@ -35,7 +35,7 @@ export class Members {
     description: 'Other name of the member',
     required: false,
   })
-  otherName?: string;
+  other_name?: string;
 
   @Column({ nullable: true })
   @ApiProperty({
@@ -66,14 +66,14 @@ export class Members {
     example: '1990-01-01',
     description: 'Date of birth of the member',
   })
-  dateOfBirth: string;
+  date_of_birth: string;
 
-  @Column()
+  @Column({ name: 'date_of_election' })
   @ApiProperty({
     example: '2022-12-01',
     description: 'Date of election for the member',
   })
-  dateOfElection: string;
+  date_of_election: string;
 
   @Column({ nullable: true })
   @ApiProperty({
@@ -111,21 +111,21 @@ export class Members {
   })
   lifeMember: 'yes' | 'no';
 
-  @Column({ nullable: true })
+  @Column({ name:'cumulative_cp', nullable: true })
   @ApiProperty({
     example: 25,
     description: 'Cumulative CP points of the member',
     required: false,
   })
-  cumulativeCp?: number;
+  cumulative_cp?: number;
 
-  @Column({ nullable: true })
+  @Column({ name: 'state_of_residence', nullable: true })
   @ApiProperty({
     example: 'Abuja',
     description: 'State of residence of the member',
     required: false,
   })
-  stateOfResidence?: string;
+  state_of_residence?: string;
 
   @Column()
   @ApiProperty({
@@ -135,30 +135,30 @@ export class Members {
   })
   license: 'yes' | 'no';
 
-  @Column({ nullable: true })
+  @Column({ name: 'license_no', nullable: true })
   @ApiProperty({
     example: 'LIC2023-0001',
     description: 'License number of the member',
     required: false,
   })
-  licenseNo?: string;
+  license_no?: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'submission_date', nullable: true })
   @ApiProperty({
     example: '2023-11-01T12:00:00Z',
     description: 'Submission date for induction',
     required: false,
   })
-  submissionDate?: string;
+  submission_date?: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'upgrade_application_status', nullable: true })
   @ApiProperty({
     example: 'yes',
     enum: ['yes', 'no'],
     description: 'Upgrade application status',
     required: false,
   })
-  upgradeApplicationStatus?: 'yes' | 'no';
+  upgrade_application_status?: 'yes' | 'no';
 
   @Column()
   @ApiProperty({
@@ -177,13 +177,13 @@ export class Members {
   })
   accepted?: 'yes' | 'no';
 
-  @Column({ nullable: true })
+  @Column({ name: 'reject_msg', nullable: true })
   @ApiProperty({
     example: 'Missing documents',
     description: 'Reason for rejection',
     required: false,
   })
-  rejectMsg?: string;
+  reject_msg?: string;
 
   @Column({ nullable: true })
   @ApiProperty({
@@ -194,10 +194,11 @@ export class Members {
   passport?: string;
 
   @Column({
+    name: 'license_status',
     type: 'enum',
     enum: ['active', 'expired'],
     nullable: true,
     default: 'expired',
   })
-  licenseStatus: 'active' | 'expired';
+  license_status: 'active' | 'expired';
 }

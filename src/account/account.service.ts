@@ -54,7 +54,7 @@ export class AccountService {
     const user = await this.memberRepository.findOne({
       where: [
         {
-          memberNo: membership,
+          member_no: membership,
           ...(isFullName
             ? {
                 firstName: nameParts[0],
@@ -71,7 +71,7 @@ export class AccountService {
       );
     }
 
-    const payload = { memberId: user.id, memberNo: user.memberNo };
+    const payload = { memberId: user.id, memberNo: user.member_no };
     const token = this.jwtService.sign(payload);
     return {
       accessToken: token,
@@ -133,7 +133,7 @@ export class AccountService {
     login.username = memberNo; // Use the member number from the token payload
     login.email = email;
     const savedLogin = await this.loginRepository.save(login);
-    member.loginId = savedLogin;
+    member.login_id = savedLogin;
 
     //sign a jwt token for use
     await this.memberRepository.save(member);
@@ -148,9 +148,9 @@ export class AccountService {
         username: savedLogin.username,
         member: {
           id: member.id,
-          memberNo: member.memberNo,
-          firstName: member.firstName,
-          lastName: member.lastName,
+          memberNo: member.member_no,
+          firstName: member.first_name,
+          lastName: member.last_name,
         },
       },
     };

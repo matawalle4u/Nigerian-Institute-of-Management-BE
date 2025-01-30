@@ -43,7 +43,7 @@ export class Login {
   activation_token: string | null;
   @CreateDateColumn()
   date: Date;
-  @OneToOne(() => Members, (member) => member.loginId, { cascade: true })
+  @OneToOne(() => Members, (member) => member.login_id, { cascade: true })
   member: Members;
   @OneToMany(() => Payment, (payment) => payment.payers)
   payments: Payment[];
