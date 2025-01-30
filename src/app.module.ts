@@ -37,7 +37,7 @@ import { ZoneModule } from './zone/zone.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Set to false in production
+        synchronize: false, // Set to false in production
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         driver: require('mysql2'),
       }),

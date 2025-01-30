@@ -17,7 +17,7 @@ export class Payment {
   status: 'fail' | 'success' | null;
 
   @Column({ type: 'text', nullable: true })
-  otherInfo: string | null;
+  other_info: string | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

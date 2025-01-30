@@ -61,7 +61,7 @@ export class PaymentService {
     return this.paymentRepository.find({
       where: { payers: { id: userId }, status: null },
       relations: ['payers'],
-      select: ['createdAt', 'otherInfo', 'amount'],
+      select: ['createdAt', 'other_info', 'amount'],
     });
   }
   async getMemberUnpaidBills(userId: number) {
@@ -73,7 +73,7 @@ export class PaymentService {
     return this.paymentRepository.find({
       where: { payers: { id: userId } },
       relations: ['payers'],
-      select: ['createdAt', 'otherInfo', 'amount', 'status'],
+      select: ['createdAt', 'other_info', 'amount', 'status'],
     });
   }
 
@@ -97,7 +97,7 @@ export class PaymentService {
       const paymentExists = await this.paymentRepository.findOne({
         where: {
           payers: { id: userId },
-          otherInfo: requiredDescription,
+          other_info: requiredDescription,
           createdAt: Between(
             new Date(`${year}-01-01`),
             new Date(`${year}-12-31`),
@@ -162,7 +162,7 @@ export class PaymentService {
     }
 
     payment.status = status;
-    if (payment.otherInfo === 'License' && payment.status === 'success') {
+    if (payment.other_info === 'License' && payment.status === 'success') {
       const licenceRecord = this.licenceRepository.create({
         licenseNo: reference,
         login: payment.payers,

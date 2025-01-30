@@ -203,7 +203,7 @@ export class LicenseService {
       where: {
         payers: { email: email },
         status: 'success',
-        otherInfo: 'License',
+        other_info: 'License',
       },
       order: { createdAt: 'DESC' },
     });

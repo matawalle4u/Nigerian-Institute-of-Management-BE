@@ -61,7 +61,7 @@ export class PaystackProvider implements PaymentProvider {
       payers: { id: loginUser.id },
       amount: initiatePaymentDto.amount,
       status: null,
-      otherInfo: initiatePaymentDto.description || null,
+      other_info: initiatePaymentDto.description || null,
     });
 
     try {

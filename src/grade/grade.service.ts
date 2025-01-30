@@ -156,7 +156,7 @@ export class GradeService {
     const upgradePaymentMade = await this.paymentRepo.findOne({
       where: {
         payers: { id: login.id },
-        otherInfo: `Payment for Membership upgrade from ${membership.grade} to ${nextGradeDetails.gradeName}`,
+        other_info: `Payment for Membership upgrade from ${membership.grade} to ${nextGradeDetails.gradeName}`,
         status: 'success',
         amount: gradeEntry.paymentAmount,
       },
