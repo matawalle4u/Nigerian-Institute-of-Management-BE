@@ -111,7 +111,7 @@ export class Members {
   })
   life_member: 'yes' | 'no';
 
-  @Column({ name:'cumulative_cp', nullable: true })
+  @Column({ name: 'cumulative_cp', nullable: true })
   @ApiProperty({
     example: 25,
     description: 'Cumulative CP points of the member',
