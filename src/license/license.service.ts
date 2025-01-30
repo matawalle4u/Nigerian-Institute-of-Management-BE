@@ -137,7 +137,7 @@ export class LicenseService {
         where: { login: { email: email } },
         relations: ['login', 'login.member'],
         select: {
-          licenseNo: true,
+          license_no: true,
           login: {
             id: true,
             username: true,
