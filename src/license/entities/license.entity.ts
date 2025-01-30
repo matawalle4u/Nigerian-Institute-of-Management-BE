@@ -16,7 +16,7 @@ export class License {
   login: Login;
 
   @Column({ name: 'license_no', type: 'varchar', length: 32, nullable: true })
-  licenseNo?: string;
+  license_no?: string;
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
