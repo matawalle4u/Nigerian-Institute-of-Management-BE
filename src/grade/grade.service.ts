@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Members } from 'src/membership/entities/membership.entity';
 import { Grade } from './entities/grade.entity';
@@ -139,9 +143,7 @@ export class GradeService {
     }
 
     //Get all outstanding
-    const outstnd = await this.paymentService.getMemberOutstandingPayments(
-      login.id,
-    );
+    const outstnd = await this.paymentService.getMemberUnpaidBills(login.id);
 
     //check for year criteria
     const yearCriteria = await this.gradeIsMoreThanXyears(
