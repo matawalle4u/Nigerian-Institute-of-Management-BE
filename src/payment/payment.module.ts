@@ -19,5 +19,6 @@ import { Bill } from 'src/billing/entities/bill.entity';
     InterswitchProvider,
   ],
   controllers: [PaymentController],
+  exports: [PaymentService],
 })
 export class PaymentModule {}
