@@ -109,7 +109,7 @@ export class Members {
     enum: ['yes', 'no'],
     description: 'Life membership status',
   })
-  lifeMember: 'yes' | 'no';
+  life_member: 'yes' | 'no';
 
   @Column({ name:'cumulative_cp', nullable: true })
   @ApiProperty({
@@ -183,7 +183,7 @@ export class Members {
     description: 'Reason for rejection',
     required: false,
   })
-  reject_msg?: string;
+  rejectMsg?: string;
 
   @Column({ nullable: true })
   @ApiProperty({
