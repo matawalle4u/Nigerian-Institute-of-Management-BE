@@ -57,10 +57,10 @@ export class AccountService {
           member_no: membership,
           ...(isFullName
             ? {
-                firstName: nameParts[0],
-                lastName: nameParts.slice(1).join(' '),
+                first_name: nameParts[0],
+                last_name: nameParts.slice(1).join(' '),
               }
-            : { dateOfBirth: nameOrDob }),
+            : { date_of_birth: nameOrDob }),
         },
       ],
     });
@@ -148,9 +148,9 @@ export class AccountService {
         username: savedLogin.username,
         member: {
           id: member.id,
-          memberNo: member.member_no,
-          firstName: member.first_name,
-          lastName: member.last_name,
+          member_no: member.member_no,
+          first_name: member.first_name,
+          last_name: member.last_name,
         },
       },
     };

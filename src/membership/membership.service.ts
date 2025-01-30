@@ -46,16 +46,16 @@ export class MembershipService {
     } else if (isFullName) {
       // Search by full name (firstName and lastName match)
       queryBuilder.where(
-        'member.firstName LIKE :firstName AND member.lastName LIKE :lastName',
+        'member.first_name LIKE :first_name AND member.last_name LIKE :last_name',
         {
-          firstName: `%${nameParts[0]}%`,
-          lastName: `%${nameParts.slice(1).join(' ')}%`,
+          first_name: `%${nameParts[0]}%`,
+          last_name: `%${nameParts.slice(1).join(' ')}%`,
         },
       );
     } else {
       // Search by partial name (match firstName or lastName)
       queryBuilder.where(
-        'member.firstName LIKE :name OR member.lastName LIKE :name',
+        'member.first_name LIKE :name OR member.last_name LIKE :name',
         { name: `%${search}%` },
       );
     }
