@@ -90,6 +90,7 @@ export class PaymentService {
       { length: currentYear - baseYear + 1 },
       (_, i) => baseYear + i,
     );
+    console.log('ggggg', yearsToCheck[0]);
     const outstandingYears = [];
 
     for (const year of yearsToCheck) {
@@ -171,6 +172,7 @@ export class PaymentService {
 
     await this.paymentRepository.save(payment);
   }
+
   async getAll() {
     return this.paymentRepository.find();
   }

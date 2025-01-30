@@ -27,6 +27,7 @@ export class PaystackProvider implements PaymentProvider {
     const paymentPayload = {
       ...initiatePaymentDto,
       amount: initiatePaymentDto.amount * 100,
+      callback_url: 'wwww.facebook.com',
     };
 
     const response: AxiosResponse<PaystackResponse<PaymentData>> =
