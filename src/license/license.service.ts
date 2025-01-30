@@ -52,9 +52,11 @@ export class LicenseService {
     //     'Please pay all outstanding fees!',
     //   );
     // }
-    //Check for all outstanding 
-    const unpaidBills = await this.paymentService.getMemberUnpaidBills(login.id);
-    if (unpaidBills.length < 1){
+    //Check for all outstanding
+    const unpaidBills = await this.paymentService.getMemberUnpaidBills(
+      login.id,
+    );
+    if (unpaidBills.length < 1) {
       return new PaymentOutStandingException(
         'Please pay all outstanding fees!',
       );
