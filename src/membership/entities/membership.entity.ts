@@ -201,4 +201,13 @@ export class Members {
     default: 'expired',
   })
   license_status: 'active' | 'expired';
+
+  @Column({ name: 'poster ', nullable: true })
+  @ApiProperty({
+    example: 'LIC2023-0001',
+    description: 'License number of the member',
+    required: false,
+  })
+  poster?: number;
+
 }
