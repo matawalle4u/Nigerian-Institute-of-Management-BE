@@ -167,7 +167,7 @@ export class LicenseService {
       // Fetch the member details
       const member = await this.memberRepository.findOne({
         where: { login_id: { id: licence.login.id } },
-        relations: ['loginId'],
+        relations: ['login_id'],
       });
 
       if (!member) {
