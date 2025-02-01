@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { PaymentProvider } from '../interfaces/payment-provider.interface';
 import { InitiatePaymentDto } from '../dto/initiate-payment.dto';
