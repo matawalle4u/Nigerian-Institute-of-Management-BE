@@ -16,7 +16,7 @@ export class MembershipDto {
     required: true,
   })
   @Type(() => Members)
-  loginId: Members;
+  login_id: Members;
 
   @ApiProperty({
     example: 'MEM12345',
@@ -24,7 +24,7 @@ export class MembershipDto {
     required: true,
   })
   @IsString()
-  memberNo: string;
+  member_no: string;
 
   @ApiProperty({
     example: 'John',
@@ -32,7 +32,7 @@ export class MembershipDto {
     required: true,
   })
   @IsString()
-  firstName: string;
+  first_name: string;
 
   @ApiProperty({
     example: 'Doe',
@@ -40,7 +40,7 @@ export class MembershipDto {
     required: true,
   })
   @IsString()
-  lastName: string;
+  last_name: string;
 
   @ApiProperty({
     example: 'Michael',
@@ -49,7 +49,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsString()
-  otherName?: string;
+  other_name?: string;
 
   @ApiProperty({
     example: '1234567890',
@@ -82,14 +82,14 @@ export class MembershipDto {
     description: 'Date of birth of the member',
   })
   @IsDateString()
-  dateOfBirth: string;
+  date_of_birth: string;
 
   @ApiProperty({
     example: '2022-12-01',
     description: 'Date of election for the member',
   })
   @IsDateString()
-  dateOfElection: string;
+  date_of_election: string;
 
   @ApiProperty({
     example: 'Tech Corp',
@@ -127,7 +127,7 @@ export class MembershipDto {
     description: 'Life membership status',
   })
   @IsEnum(['yes', 'no'])
-  lifeMember: 'yes' | 'no';
+  life_member: 'yes' | 'no';
 
   @ApiProperty({
     example: 25,
@@ -136,7 +136,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsNumber()
-  cumulativeCp?: number;
+  cumulative_cp?: number;
 
   @ApiProperty({
     example: 'Abuja',
@@ -145,7 +145,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsString()
-  stateOfResidence?: string;
+  state_of_residence?: string;
 
   @ApiProperty({
     example: 'yes',
@@ -162,7 +162,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsString()
-  licenseNo?: string;
+  license_no?: string;
 
   @ApiProperty({
     example: '2023-11-01T12:00:00Z',
@@ -171,7 +171,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsDateString()
-  submissionDate?: string;
+  submission_date?: string;
 
   @ApiProperty({
     example: 'yes',
@@ -181,7 +181,7 @@ export class MembershipDto {
   })
   @IsOptional()
   @IsEnum(['yes', 'no'])
-  upgradeApplicationStatus?: 'yes' | 'no';
+  upgrade_application_status?: 'yes' | 'no';
 
   @ApiProperty({
     example: 'yes',
