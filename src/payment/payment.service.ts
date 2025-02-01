@@ -61,7 +61,7 @@ export class PaymentService {
     return this.paymentRepository.find({
       where: { payers: { id: userId }, status: null },
       relations: ['payers'],
-      select: ['createdAt', 'other_info', 'amount'],
+      select: ['date', 'other_info', 'amount'],
     });
   }
   async getMemberUnpaidBills(userId: number) {
@@ -73,7 +73,7 @@ export class PaymentService {
     return this.paymentRepository.find({
       where: { payers: { id: userId } },
       relations: ['payers'],
-      select: ['createdAt', 'other_info', 'amount', 'status'],
+      select: ['date', 'other_info', 'amount', 'status'],
     });
   }
 
@@ -98,10 +98,7 @@ export class PaymentService {
         where: {
           payers: { id: userId },
           other_info: requiredDescription,
-          createdAt: Between(
-            new Date(`${year}-01-01`),
-            new Date(`${year}-12-31`),
-          ),
+          date: Between(new Date(`${year}-01-01`), new Date(`${year}-12-31`)),
         },
         relations: ['payers'],
       });
@@ -152,7 +149,7 @@ export class PaymentService {
     status: 'success' | 'fail',
   ): Promise<void> {
     const payment = await this.paymentRepository.findOne({
-      where: { paymentId: reference },
+      where: { payment_id: reference },
       relations: ['payers'],
     });
 

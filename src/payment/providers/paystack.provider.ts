@@ -57,7 +57,7 @@ export class PaystackProvider implements PaymentProvider {
     // Create a new payment record
     console.log(paymentData);
     const payment = this.paymentRepository.create({
-      paymentId: paymentData.reference,
+      payment_id: paymentData.reference,
       payers: { id: loginUser.id },
       amount: initiatePaymentDto.amount,
       status: null,

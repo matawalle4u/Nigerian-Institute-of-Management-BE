@@ -205,7 +205,7 @@ export class LicenseService {
         status: 'success',
         other_info: 'License',
       },
-      order: { createdAt: 'DESC' },
+      order: { date: 'DESC' },
     });
 
     if (!latestPayment) {
@@ -216,7 +216,7 @@ export class LicenseService {
     const threeYearsAgo = new Date();
     threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
-    return latestPayment.createdAt <= threeYearsAgo;
+    return latestPayment.date <= threeYearsAgo;
   }
 }
 

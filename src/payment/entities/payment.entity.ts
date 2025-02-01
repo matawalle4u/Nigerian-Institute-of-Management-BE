@@ -3,8 +3,8 @@ import { Login } from 'src/account/entities/login.entity';
 
 @Entity('payment')
 export class Payment {
-  @PrimaryColumn({ type: 'char', length: 18 })
-  paymentId: string;
+  @PrimaryColumn({ name: 'payment_id', type: 'char', length: 18 })
+  payment_id: string;
 
   @ManyToOne(() => Login, (login) => login.payments)
   @JoinColumn({ name: 'payers' })
@@ -19,8 +19,12 @@ export class Payment {
   @Column({ type: 'text', nullable: true })
   other_info: string | null;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column({
+    name: 'date',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  date: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date;

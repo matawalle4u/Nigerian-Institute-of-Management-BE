@@ -47,7 +47,7 @@ export class PaymentController {
   ): Promise<PaymentHistoryDto[]> {
     const payments = await this.paymentService.getPaymentHistory(userId);
     return payments.map((payment) => ({
-      date: payment.createdAt,
+      date: payment.date,
       billName: payment.other_info || 'Unknown Bill',
       description: payment.status || 'No Status',
       amount: payment.amount,
