@@ -24,7 +24,7 @@ export class MembershipService {
   async findOne(id: number): Promise<Members> {
     const member = this.memberRepository.findOne({
       where: { id },
-      relations: ['loginId'],
+      relations: ['login_id'],
     });
 
     return member;
