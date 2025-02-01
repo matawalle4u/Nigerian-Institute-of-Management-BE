@@ -209,5 +209,4 @@ export class Members {
     required: false,
   })
   poster?: number;
-
 }
