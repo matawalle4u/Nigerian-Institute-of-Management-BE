@@ -177,7 +177,7 @@ export class Members {
   })
   accepted?: 'yes' | 'no';
 
-  @Column({ name: 'reject_msg', nullable: true })
+  @Column({ name: 'rejectMsg', nullable: true })
   @ApiProperty({
     example: 'Missing documents',
     description: 'Reason for rejection',
@@ -185,7 +185,7 @@ export class Members {
   })
   rejectMsg?: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'passport', nullable: true })
   @ApiProperty({
     example: 'passport.jpg',
     description: 'Member passport',
@@ -202,7 +202,7 @@ export class Members {
   })
   license_status: 'active' | 'expired';
 
-  @Column({ name: 'poster ', nullable: true })
+  @Column({ name: 'poster', nullable: true })
   @ApiProperty({
     example: 'LIC2023-0001',
     description: 'License number of the member',
