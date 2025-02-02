@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
 import { Members } from './entities/membership.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { MembershipDto } from './dto/membership.dto';
 import { SearchMemberDto } from './dto/search-querry.dto';
+import { PaginationDto } from 'src/general-dtos/pagination.dto';
 // import { CreateCriteriaDto } from './dto/criteria.dto';
 // import { CreateGradeDto } from './dto/grade.dto';
 
@@ -68,8 +70,8 @@ export class MembershipController {
     description: 'List of members',
     type: [Members],
   })
-  findAll() {
-    return this.membershipService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto) {
+    return this.membershipService.findAll(paginationDto);
   }
 
   @Post('search')

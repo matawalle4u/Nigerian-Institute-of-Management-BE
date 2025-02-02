@@ -1,6 +1,5 @@
 import { util, pki, jsbn } from 'node-forge';
 
-
 /**
  * Converts a string to hexadecimal format.
  * @param {string} str - The input string.

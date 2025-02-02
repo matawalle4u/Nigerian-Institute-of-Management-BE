@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
 import { MembershipDto } from './dto/membership.dto';
 import { SearchMemberDto } from './dto/search-querry.dto';
+import { PaginationDto } from 'src/general-dtos/pagination.dto';
 
 @Injectable()
 export class MembershipService {
@@ -17,8 +18,19 @@ export class MembershipService {
     return this.memberRepository.save(member);
   }
 
-  async findAll(): Promise<Members[]> {
-    return this.memberRepository.find();
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<{ data: Members[]; total: number }> {
+    const { page, limit } = paginationDto;
+    const [data, total] = await this.memberRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    if (!data.length) {
+      throw new NotFoundException('No memberships found');
+    }
+
+    return { data, total };
   }
 
   async findOne(id: number): Promise<Members> {
