@@ -74,9 +74,29 @@ export class MembershipController {
     return this.membershipService.findAll(paginationDto);
   }
 
-  @Post('search')
-  search(@Body() searchQuerry: SearchMemberDto) {
-    return this.membershipService.searchMembership(searchQuerry);
+  // @Post('search')
+  // search(@Body() searchQuerry: SearchMemberDto) {
+  //   return this.membershipService.searchMembership(searchQuerry);
+  // }
+
+  @Get('search')
+  async searchMembership(
+    @Query() searchMemberDto: SearchMemberDto,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    const { data, total } = await this.membershipService.searchMembership(
+      searchMemberDto,
+      paginationDto,
+    );
+
+    return {
+      data,
+      meta: {
+        page: paginationDto.page,
+        limit: paginationDto.limit,
+        total,
+      },
+    };
   }
 
   @Get(':id')

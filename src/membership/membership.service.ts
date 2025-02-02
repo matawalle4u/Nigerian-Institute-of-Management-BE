@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
@@ -42,8 +42,13 @@ export class MembershipService {
     return member;
   }
 
-  async searchMembership(searchMemberDto: SearchMemberDto): Promise<Members[]> {
+  async searchMembership(
+    searchMemberDto: SearchMemberDto,
+    paginationDto: PaginationDto,
+  ): Promise<{ data: Members[]; total: number }> {
     const { search } = searchMemberDto;
+    const { page, limit } = paginationDto;
+
     const nameParts = search.split(' ');
     const isMembershipNo = /^\d+$/.test(search);
     const isFullName = nameParts.length > 1;
@@ -71,13 +76,27 @@ export class MembershipService {
         { name: `%${search}%` },
       );
     }
-    const users = await queryBuilder.getMany();
-    if (!users || users.length === 0) {
-      throw new UnauthorizedException(
+
+    const [data, total] = await queryBuilder
+      .skip((page - 1) * limit) // Skip records based on page number
+      .take(limit) // Limit the number of records per page
+      .getManyAndCount(); // Get both the data and total count
+
+    if (!data || data.length === 0) {
+      throw new NotFoundException(
         `No members found matching the provided input: ${search}`,
       );
     }
-    return users;
+
+    return { data, total };
+
+    // const users = await queryBuilder.getMany();
+    // if (!users || users.length === 0) {
+    //   throw new UnauthorizedException(
+    //     `No members found matching the provided input: ${search}`,
+    //   );
+    // }
+    // return users;
   }
 
   async update(id: number, updateData: Partial<Members>): Promise<Members> {
