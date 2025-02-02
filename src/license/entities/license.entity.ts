@@ -18,6 +18,10 @@ export class License {
   @Column({ name: 'license_no', type: 'varchar', length: 32, nullable: true })
   license_no?: string;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column({
+    name: 'date',
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  date: Date;
 }
