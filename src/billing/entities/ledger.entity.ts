@@ -46,10 +46,10 @@ export class Ledger {
   @Column({ name: 'fee', default: null })
   fee: number;
 
-  @Column()
+  @Column({ name: 'date' })
   date: Date;
 
-  @Column()
+  @Column({ name: 'year' })
   year: number;
 
   @UpdateDateColumn()
