@@ -5,10 +5,10 @@ export class Message {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'subject', type: 'text' })
+  @Column({ name: 'subject', type: 'text', nullable: true })
   subject: string;
 
-  @Column({ name: 'body', type: 'text' })
+  @Column({ name: 'body', type: 'text', nullable: true })
   body: string;
 
   @Column({
