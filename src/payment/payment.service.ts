@@ -160,11 +160,13 @@ export class PaymentService {
 
     payment.status = status;
     if (payment.other_info === 'License' && payment.status === 'success') {
-      const licenceRecord = this.licenceRepository.create({
-        license_no: reference,
-        login: payment.payers,
-      });
-      await this.licenceRepository.save(licenceRecord);
+      // const licenceRecord = this.licenceRepository.create({
+      //   license_no: reference,
+      //   login: payment.payers,
+      // });
+      //await this.licenceRepository.save(licenceRecord);
+      //TODO SMELLED RAT HERE TOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      await Promise;
     }
 
     await this.paymentRepository.save(payment);

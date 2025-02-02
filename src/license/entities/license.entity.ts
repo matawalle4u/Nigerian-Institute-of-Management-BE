@@ -3,7 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn,
+  // JoinColumn,
 } from 'typeorm';
 import { Login } from 'src/account/entities/login.entity';
 @Entity('license')
@@ -11,8 +11,8 @@ export class License {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Login, (login) => login.id, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'login_id' })
+  @ManyToOne(() => Login, (login_id) => login_id.id, { onDelete: 'CASCADE' })
+  // @JoinColumn({ name: 'login_id' })
   login_id: Login;
 
   @Column({ name: 'license_no', type: 'varchar', length: 32, nullable: true })

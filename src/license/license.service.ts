@@ -64,12 +64,13 @@ export class LicenseService {
 
     console.log(unpaidBills);
 
-    const license = this.licenseRepository.create({
-      ...createLicenseDto,
-      login,
-    });
+    // const license = this.licenseRepository.create({
+    //   createLicenseDto,
+    // });
 
-    return this.licenseRepository.save(license);
+    //SMELLED RAT HERE OOO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //return this.licenseRepository.save(license);
+    return createLicenseDto;
   }
 
   async findAll(): Promise<License[]> {
@@ -134,11 +135,11 @@ export class LicenseService {
 
       // Fetch the license details
       const licence = await this.licenseRepository.findOne({
-        where: { login: { email: email } },
+        where: { login_id: { email: email } },
         relations: ['login', 'login.member'],
         select: {
           license_no: true,
-          login: {
+          login_id: {
             id: true,
             username: true,
             email: true,
@@ -166,7 +167,7 @@ export class LicenseService {
 
       // Fetch the member details
       const member = await this.memberRepository.findOne({
-        where: { login_id: { id: licence.login.id } },
+        where: { login_id: { id: licence.login_id.id } },
         relations: ['login_id'],
       });
 

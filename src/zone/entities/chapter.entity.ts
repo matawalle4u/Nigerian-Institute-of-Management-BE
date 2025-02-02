@@ -18,7 +18,7 @@ export class Chapter {
   @Column({ name: 'head', length: 255 })
   head: string;
 
-  @Column({ name: 'name', length: 255 })
+  @Column({ name: 'state', length: 255 })
   state: string;
 
   @ManyToOne(() => Zone, { nullable: false, onDelete: 'CASCADE' })

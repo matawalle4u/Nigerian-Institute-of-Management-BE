@@ -7,7 +7,7 @@ export class CreateLicenseDto {
     example: 1,
   })
   @IsString()
-  login: number;
+  login_id: number;
 
   @ApiProperty({
     description: 'License Number',
@@ -15,5 +15,5 @@ export class CreateLicenseDto {
   })
   @IsString()
   @IsNotEmpty()
-  licenseNo: string;
+  license_no: string;
 }
