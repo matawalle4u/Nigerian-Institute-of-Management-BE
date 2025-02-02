@@ -5,12 +5,12 @@ export class Zone {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
+  @Column({ name: 'name', length: 255 })
   name: string;
 
-  @Column({ length: 255 })
+  @Column({ name: 'head', length: 255 })
   head: string;
 
-  @Column()
+  @Column({ name: 'info' })
   info: string;
 }
