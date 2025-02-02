@@ -26,4 +26,8 @@ export class BillingController {
   async getAll() {
     return this.billingService.getAll();
   }
+  @Get('user/payment-history/:login_id')
+  async getUserPaymentHistory(@Param('login_id') login_id: number) {
+    return this.billingService.getUserPaymentsSummary(login_id);
+  }
 }
