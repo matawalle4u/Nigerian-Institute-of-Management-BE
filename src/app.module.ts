@@ -29,7 +29,7 @@ import { ZoneModule } from './zone/zone.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        logging: false,
+        logging: true,
         type: 'mysql',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
