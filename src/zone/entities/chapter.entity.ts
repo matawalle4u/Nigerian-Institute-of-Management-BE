@@ -28,6 +28,6 @@ export class Chapter {
   @Column({ name: 'info' })
   info: string;
 
-  @Column({ name: 'date' })
+  @Column({ name: 'date', default: () => 'CURRENT_TIMESTAMP' })
   date: Date;
 }
