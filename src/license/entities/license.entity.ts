@@ -12,8 +12,8 @@ export class License {
   id: number;
 
   @ManyToOne(() => Login, (login) => login.id, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  login: Login;
+  @JoinColumn({ name: 'login_id' })
+  login_id: Login;
 
   @Column({ name: 'license_no', type: 'varchar', length: 32, nullable: true })
   license_no?: string;
