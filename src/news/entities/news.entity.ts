@@ -21,4 +21,7 @@ export class News {
 
   @Column({ nullable: true })
   image: string;
+
+  @Column({ name: 'asset', nullable: true })
+  asset: string;
 }

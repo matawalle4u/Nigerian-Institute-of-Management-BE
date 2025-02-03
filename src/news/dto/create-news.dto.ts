@@ -36,4 +36,13 @@ export class CreateNewsDto {
   @IsOptional()
   @IsString()
   image?: string;
+
+  @ApiProperty({
+    description: 'Asset path',
+    example: 'https://example.com/asset.pdf',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  asset?: string;
 }
