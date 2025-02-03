@@ -156,7 +156,7 @@ export class GradeService {
     const upgradePaymentMade = await this.paymentRepo.findOne({
       where: {
         payers: { id: login.id },
-        other_info: `Payment for Membership upgrade from ${membership.grade} to ${nextGradeDetails.gradeName}`,
+        other_info: `Payment for Membership upgrade from ${membership.grade} to ${nextGradeDetails.name}`,
         status: 'success',
         amount: gradeEntry.paymentAmount,
       },
@@ -190,7 +190,7 @@ export class GradeService {
       relations: ['criteria'],
     });
 
-    const nextGradeName = nextGradeDetails.gradeName;
+    const nextGradeName = nextGradeDetails.name;
     const nextGradeCriteria = nextGradeDetails.criteria;
     const cumulativeCp =
       membership.cumulativeCp >= nextGradeCriteria.requirements.cumulative_cp;

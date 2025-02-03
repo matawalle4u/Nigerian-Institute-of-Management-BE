@@ -7,7 +7,7 @@ export class Grade {
   id: number;
 
   @Column()
-  gradeName: string;
+  name: string;
 
   @Column('decimal')
   paymentAmount: number;
