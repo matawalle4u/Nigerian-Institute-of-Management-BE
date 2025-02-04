@@ -19,7 +19,7 @@ export class History {
   @Column({ name: 'grade' })
   grade: string;
 
-  @ManyToOne(() => Login, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => Login, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'poster' })
   poster: Login;
 
