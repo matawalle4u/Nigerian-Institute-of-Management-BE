@@ -88,7 +88,7 @@ export class GradeService {
   }
   async fetchGrade(gradeName: string): Promise<Grade> {
     const grade = await this.gradeRepo.findOne({
-      where: { grade_name: gradeName },
+      where: { name: gradeName },
       relations: ['criteria'],
     });
     if (!grade) {
