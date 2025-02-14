@@ -6,8 +6,8 @@ import {
   IsString,
   IsDateString,
 } from 'class-validator';
-import { Members } from '../entities/membership.entity';
 import { Type } from 'class-transformer';
+import { Login } from 'src/account/entities/login.entity';
 
 export class MembershipDto {
   @ApiProperty({
@@ -15,8 +15,8 @@ export class MembershipDto {
     description: 'Login ID associated with the member',
     required: true,
   })
-  @Type(() => Members)
-  login_id: Members;
+  @Type(() => Login)
+  login_id: Login;
 
   @ApiProperty({
     example: 'MEM12345',

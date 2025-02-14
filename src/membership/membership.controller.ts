@@ -24,34 +24,6 @@ export class MembershipController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new member' })
-  @ApiBody({
-    type: Members,
-    description: 'Member data for creation',
-    examples: {
-      default: {
-        summary: 'Sample Payload',
-        value: {
-          login_id: 101,
-          member_id: 'MEM12345',
-          first_name: 'John',
-          last_name: 'Doe',
-          gender: 'male',
-          date_of_birth: '1990-01-01',
-          date_of_election: '2022-12-01',
-          zone: 5,
-          grade: 'graduate',
-          lifeMember: 'no',
-          license: 'yes',
-          induction: 'yes',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Member created successfully',
-    type: Members,
-  })
   create(@Body() memberDto: MembershipDto) {
     try {
       const member = this.membershipService.create(memberDto);
