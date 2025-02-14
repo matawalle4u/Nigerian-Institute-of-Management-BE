@@ -41,13 +41,28 @@ export class GradeService {
   ) {}
 
   // Get all criteria for membership upgrade
-  async getUserGradeHistory(loginId: number) {
-    return this.upgradeRepo.find({
-      where: { member: { id: loginId } },
-      relations: ['member'],
-      order: { createdAt: 'DESC' },
-    });
+  // async getUserGradeHistory(loginId: number) {
+  //   return this.upgradeRepo.find({
+  //     where: { member: { id: loginId } },
+  //     relations: ['member'],
+  //     order: { createdAt: 'DESC' },
+  //   });
+  // }
+  getUserGradeHistory(loginId: number) {
+    return this.upgradeRepo
+      .find({
+        where: { member: { id: loginId } },
+        relations: ['member'],
+        order: { createdAt: 'DESC' },
+      })
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
+
   async createCriteria(
     createCriteriaDto: CreateCriteriaDto,
   ): Promise<Criteria> {
@@ -107,12 +122,14 @@ export class GradeService {
       where: { id: userId },
     });
 
+    console.log(membership);
     if (!membership) {
       throw new UnauthorizedException(
         `No user found with the membership id ${userId}`,
       );
     }
 
+    console.log(membership.grade);
     const gradeEntry = await this.fetchGrade(membership.grade);
 
     const nextGradeDetails = await this.gradeRepo.findOne({
@@ -233,15 +250,11 @@ export class GradeService {
     return this.upgradeRepo.save(NewUpgrade);
   }
 
-  async gradeIsMoreThanXyears(
-    userId: number,
-    gradeName: string,
-    Xyears: number,
-  ) {
+  async gradeIsMoreThanXyears(userId: number, name: string, Xyears: number) {
     const lastGrade = await this.upgradeRepo.findOne({
       where: {
         member: { id: userId },
-        currentGrade: { gradeName },
+        currentGrade: { name },
       },
       relations: ['member'],
       order: { createdAt: 'DESC' },
