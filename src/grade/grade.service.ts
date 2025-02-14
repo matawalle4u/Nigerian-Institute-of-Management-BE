@@ -15,6 +15,7 @@ import { Upgrade } from './entities/upgrade.entity';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { error } from 'console';
 
 @Injectable()
 export class GradeService {
@@ -40,14 +41,6 @@ export class GradeService {
     private readonly paymentRepo,
   ) {}
 
-  // Get all criteria for membership upgrade
-  // async getUserGradeHistory(loginId: number) {
-  //   return this.upgradeRepo.find({
-  //     where: { member: { id: loginId } },
-  //     relations: ['member'],
-  //     order: { createdAt: 'DESC' },
-  //   });
-  // }
   getUserGradeHistory(loginId: number) {
     return this.upgradeRepo
       .find({
@@ -93,28 +86,41 @@ export class GradeService {
     return this.gradeRepo.save(criteria);
   }
   async allGrade(): Promise<Grade[]> {
-    const grade = await this.gradeRepo.find({
-      relations: ['criteria'],
-    });
-    if (!grade) {
-      throw new NotFoundException('Grade not found');
-    }
-    return grade;
+    return this.gradeRepo
+      .find({
+        relations: ['criteria'],
+      })
+      .then((grade) => {
+        if (!grade) {
+          throw new NotFoundException('No grade was found');
+        }
+        return grade;
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
-  async fetchGrade(gradeName: string): Promise<Grade> {
-    const grade = await this.gradeRepo.findOne({
-      where: { name: gradeName },
-      relations: ['criteria'],
-    });
-    if (!grade) {
-      throw new NotFoundException('Grade not found');
-    }
-    const nextGrade = await this.gradeRepo.findOne({
-      where: { id: grade.priority + 1 },
-      relations: ['criteria'],
-    });
 
-    return { ...grade, nextGrade: nextGrade };
+  async fetchGrade(gradeName: string): Promise<Grade> {
+    return this.gradeRepo
+      .findOne({
+        where: { name: gradeName },
+        relations: ['criteria'],
+      })
+      .then((grade) => {
+        if (!grade) {
+          throw new NotFoundException('Grade not found');
+        }
+        return this.gradeRepo
+          .findOne({
+            where: { id: grade.priority + 1 },
+            relations: ['criteria'],
+          })
+          .then((nextGrade) => ({ ...grade, nextGrade }));
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
 
   async checkEligibility(userId: number): Promise<any> {
@@ -129,7 +135,6 @@ export class GradeService {
       );
     }
 
-    console.log(membership.grade);
     const gradeEntry = await this.fetchGrade(membership.grade);
 
     const nextGradeDetails = await this.gradeRepo.findOne({
@@ -220,7 +225,11 @@ export class GradeService {
         },
       },
     });
-
+    if (!login) {
+      throw new NotFoundException(
+        `No login available for member with id ${userId}`,
+      );
+    }
     //Get all outstanding
     const userOutstandings =
       await this.paymentService.getMemberOutstandingPayments(login.id);
