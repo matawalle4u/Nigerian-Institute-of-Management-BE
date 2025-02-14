@@ -114,7 +114,6 @@ export class AccountService {
   }
 
   async signup(token: string, signupDto: SignupDto): Promise<any> {
-    console.log(token);
     const { email } = signupDto;
 
     const payload = this.jwtService.verify(token);
@@ -278,10 +277,10 @@ export class AccountService {
     try {
       const payload = this.jwtService.verify(authToken);
       const user = await this.loginRepository.findOne({
-        where: { email: payload.email, status: 'active' }, //this has no payload.email if you use the validate token
-        relations: ['member'],
+        where: { email: payload.email, status: 'active' },
+        relations: ['member', 'member.chapter'],
       });
-      console.log(payload, user);
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -333,7 +332,6 @@ export class AccountService {
 
       return response.data;
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         error.response?.data,
         error.response?.status || 500,
