@@ -4,9 +4,11 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Login } from 'src/account/entities/login.entity';
+import { Chapter } from 'src/zone/entities/chapter.entity';
 @Entity('members')
 export class Members {
   @PrimaryGeneratedColumn()
@@ -83,13 +85,14 @@ export class Members {
   })
   employer?: string;
 
-  @Column({ nullable: true })
+  @ManyToOne(() => Chapter, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'chapter' })
   @ApiProperty({
     example: 2,
     description: 'Chapter ID of the member',
     required: false,
   })
-  chapter?: number;
+  chapter?: Chapter;
 
   @Column()
   @ApiProperty({ example: 5, description: 'Zone ID of the member' })

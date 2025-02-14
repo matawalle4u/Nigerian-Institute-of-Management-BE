@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Login } from 'src/account/entities/login.entity';
+import { Chapter } from 'src/zone/entities/chapter.entity';
 
 export class MembershipDto {
   @ApiProperty({
@@ -106,8 +107,8 @@ export class MembershipDto {
     required: false,
   })
   @IsOptional()
-  @IsNumber()
-  chapter?: number;
+  @Type(() => Chapter)
+  chapter?: Chapter;
 
   @ApiProperty({ example: 5, description: 'Zone ID of the member' })
   @IsNumber()
