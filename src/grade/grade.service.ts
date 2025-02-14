@@ -15,7 +15,6 @@ import { Upgrade } from './entities/upgrade.entity';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
-import { error } from 'console';
 
 @Injectable()
 export class GradeService {
@@ -243,8 +242,6 @@ export class GradeService {
 
     //Check for whether the person has made the payment
     const conditions = `Upgrading from ${userGrade} to ${nextGradeName} spent ${currentGradeCriteria.requirements.minimum_years} years? ${yearCriteria} settled all bills ${userOutstandings} score ${cumulativeCp}`;
-
-    console.log(conditions);
     membership.grade = nextGradeName as any;
     await this.memberRepository.save(membership);
 
@@ -260,22 +257,27 @@ export class GradeService {
   }
 
   async gradeIsMoreThanXyears(userId: number, name: string, Xyears: number) {
-    const lastGrade = await this.upgradeRepo.findOne({
-      where: {
-        member: { id: userId },
-        currentGrade: { name },
-      },
-      relations: ['member'],
-      order: { createdAt: 'DESC' },
-    });
-    console.log(lastGrade);
-    if (!lastGrade) {
-      return true;
-    }
+    return this.upgradeRepo
+      .findOne({
+        where: {
+          member: { id: userId },
+          currentGrade: { name },
+        },
+        relations: ['member'],
+        order: { createdAt: 'DESC' },
+      })
+      .then((lastGrade) => {
+        if (!lastGrade) {
+          return true;
+        }
 
-    const xYearsAgo = new Date();
-    xYearsAgo.setFullYear(xYearsAgo.getFullYear() - Xyears);
+        const xYearsAgo = new Date();
+        xYearsAgo.setFullYear(xYearsAgo.getFullYear() - Xyears);
 
-    return lastGrade.createdAt <= xYearsAgo;
+        return lastGrade.createdAt <= xYearsAgo;
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
 }
