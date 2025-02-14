@@ -15,6 +15,7 @@ import { join } from 'path';
 import { BillingModule } from './billing/billing.module';
 import { NotificationModule } from './notification/notification.module';
 import { ZoneModule } from './zone/zone.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ZoneModule } from './zone/zone.module';
     BillingModule,
     NotificationModule,
     ZoneModule,
+    MailerModule,
   ],
 })
 export class AppModule {}
