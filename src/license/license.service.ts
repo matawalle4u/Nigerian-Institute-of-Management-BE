@@ -123,12 +123,11 @@ export class LicenseService {
       // console.log(token, userId);
       const payload = this.jwtService.verify(token);
       const { email } = payload;
-      console.log(email);
       // Fetch the login details
       const login = await this.loginRepository.findOne({
         where: { email: email },
       });
-      // console.log(login);
+
       if (!login) {
         throw new Error('Login not found');
       }
@@ -136,8 +135,9 @@ export class LicenseService {
       // Fetch the license details
       const licence = await this.licenseRepository.findOne({
         where: { login_id: { email: email } },
-        relations: ['login', 'login.member'],
+        relations: ['login_id', 'login_id.member'],
         select: {
+          id: true,
           license_no: true,
           login_id: {
             id: true,

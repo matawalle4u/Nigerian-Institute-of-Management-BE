@@ -83,7 +83,6 @@ export class LicenseController {
     @Headers('Authorization') authToken: string,
     @Param() userId: number,
   ) {
-    console.log(authToken, userId);
     const license = await this.licenseService.getUserLicense(authToken);
     if (!license) {
       return {
