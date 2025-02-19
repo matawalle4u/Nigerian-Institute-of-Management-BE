@@ -24,7 +24,7 @@ import {
   ResetPasswordDto,
   VerifyOtpDto,
 } from './dto/request-otp';
-import { MailerService } from '@nestjs-modules/mailer';
+import { MailerService as EmailService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AccountService {
@@ -41,7 +41,7 @@ export class AccountService {
     private readonly jwtService: JwtService,
 
     @InjectRepository(Otp) private otpRepository: Repository<Otp>,
-    private mailerService: MailerService,
+    private mailerService: EmailService,
   ) {}
 
   async validateMembership(
@@ -171,6 +171,12 @@ export class AccountService {
     //   subject: 'Your Password Reset OTP',
     //   text: `Your OTP is ${otpCode}`,
     // });
+
+    this.mailerService.sendEmail(
+      dto.email,
+      'Password Reset',
+      `Your OTP is ${otpCode}`,
+    );
 
     console.log(`Your OTP is ${otpCode}`);
     return 'OTP sent to email.';

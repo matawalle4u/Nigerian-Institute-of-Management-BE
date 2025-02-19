@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
 import { MembershipDto } from './dto/membership.dto';
-import { SearchMemberDto } from './dto/search-querry.dto';
-import { PaginationDto } from 'src/general-dtos/pagination.dto';
 
 @Injectable()
 export class MembershipService {
@@ -18,10 +16,7 @@ export class MembershipService {
     return this.memberRepository.save(member);
   }
 
-  async findAll(
-    paginationDto: PaginationDto,
-  ): Promise<{ data: Members[]; total: number }> {
-    const { page, limit } = paginationDto;
+  async findAll(page, limit): Promise<{ data: Members[]; total: number }> {
     const [data, total] = await this.memberRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
@@ -43,12 +38,10 @@ export class MembershipService {
   }
 
   async searchMembership(
-    searchMemberDto: SearchMemberDto,
-    paginationDto: PaginationDto,
+    search: string,
+    page: number,
+    limit: number,
   ): Promise<{ data: Members[]; total: number }> {
-    const { search } = searchMemberDto;
-    const { page, limit } = paginationDto;
-
     const nameParts = search.split(' ');
     const isMembershipNo = /^\d+$/.test(search);
     const isFullName = nameParts.length > 1;
@@ -78,25 +71,16 @@ export class MembershipService {
     }
 
     const [data, total] = await queryBuilder
-      .skip((page - 1) * limit) // Skip records based on page number
-      .take(limit) // Limit the number of records per page
-      .getManyAndCount(); // Get both the data and total count
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
 
     if (!data || data.length === 0) {
       throw new NotFoundException(
         `No members found matching the provided input: ${search}`,
       );
     }
-
     return { data, total };
-
-    // const users = await queryBuilder.getMany();
-    // if (!users || users.length === 0) {
-    //   throw new UnauthorizedException(
-    //     `No members found matching the provided input: ${search}`,
-    //   );
-    // }
-    // return users;
   }
 
   async update(id: number, updateData: Partial<Members>): Promise<Members> {

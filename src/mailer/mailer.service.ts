@@ -3,8 +3,7 @@ import { MailerService as NodeEmail } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class MailerService {
-  private readonly mailerService: NodeEmail;
-  constructor() {}
+  constructor(private readonly mailerService: NodeEmail) {}
 
   sendEmail(to: string, subject: string, text: string) {
     return this.mailerService

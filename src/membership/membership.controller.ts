@@ -14,8 +14,6 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { MembershipDto } from './dto/membership.dto';
 import { SearchMemberDto } from './dto/search-querry.dto';
 import { PaginationDto } from 'src/general-dtos/pagination.dto';
-// import { CreateCriteriaDto } from './dto/criteria.dto';
-// import { CreateGradeDto } from './dto/grade.dto';
 
 @ApiTags('members')
 @Controller('members')
@@ -43,29 +41,31 @@ export class MembershipController {
     type: [Members],
   })
   async findAll(@Query() paginationDto: PaginationDto) {
-    return this.membershipService.findAll(paginationDto);
+    return this.membershipService.findAll(
+      paginationDto.page,
+      paginationDto.limit,
+    );
   }
-
-  // @Post('search')
-  // search(@Body() searchQuerry: SearchMemberDto) {
-  //   return this.membershipService.searchMembership(searchQuerry);
-  // }
 
   @Get('search')
   async searchMembership(
     @Query() searchMemberDto: SearchMemberDto,
     @Query() paginationDto: PaginationDto,
   ) {
+    const { page, limit } = paginationDto;
+    const { search } = searchMemberDto;
+
     const { data, total } = await this.membershipService.searchMembership(
-      searchMemberDto,
-      paginationDto,
+      search,
+      page,
+      limit,
     );
 
     return {
       data,
       meta: {
-        page: paginationDto.page,
-        limit: paginationDto.limit,
+        page: page,
+        limit: limit,
         total,
       },
     };
