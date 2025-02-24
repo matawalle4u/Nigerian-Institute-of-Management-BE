@@ -8,7 +8,7 @@ export class MailerController {
 
   @Post('send')
   createCriteria(@Body() sendMailDto: SendMailDto) {
-    const { email, subject, content } = sendMailDto;
-    return this.emailService.sendEmail(email, subject, content);
+    const { email, subject, content, template } = sendMailDto;
+    return this.emailService.sendEmail(email, subject, content, template);
   }
 }

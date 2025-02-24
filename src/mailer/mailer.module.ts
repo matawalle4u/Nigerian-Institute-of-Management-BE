@@ -2,8 +2,7 @@ import { MailerModule as NestEmail } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { MailerService } from './mailer.service';
 import { MailerController } from './mailer.controller';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { join } from 'path';
+import { HandlebarsAdapter as Adapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -23,8 +22,8 @@ import { join } from 'path';
         from: '"No Reply" <noreply@nim.ng>',
       },
       template: {
-        dir: join(__dirname, './templates'),
-        adapter: new HandlebarsAdapter(),
+        dir: process.cwd() + '/templates/',
+        adapter: new Adapter(),
         options: {
           strict: true,
         },

@@ -22,4 +22,11 @@ export class SendMailDto {
   })
   @IsString()
   content: string;
+
+  @ApiProperty({
+    description: 'Template path',
+    example: 'MAILER_TEMPLATE',
+  })
+  @IsString()
+  template: string;
 }
