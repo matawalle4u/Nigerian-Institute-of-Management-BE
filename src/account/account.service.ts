@@ -164,18 +164,14 @@ export class AccountService {
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
     const otp = this.otpRepository.create({ user, otp: otpCode });
     await this.otpRepository.save(otp);
-    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying
-    // Send OTP via email
-    // await this.mailerService.sendMail({
-    //   to: dto.email,
-    //   subject: 'Your Password Reset OTP',
-    //   text: `Your OTP is ${otpCode}`,
-    // });
 
+    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying
+    const template_path = process.cwd() + '/templates/';
     this.mailerService.sendEmail(
       dto.email,
       'Password Reset',
       `Your OTP is ${otpCode}`,
+      `${template_path}/MAILER_TEMPLATE`,
     );
 
     console.log(`Your OTP is ${otpCode}`);
@@ -190,10 +186,6 @@ export class AccountService {
     });
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
-
-    // const otp = await this.otpRepository.findOne({
-    //   where: { user, otp: dto.otp, verified: 0 },
-    // });
 
     const otp = await this.otpRepository
       .createQueryBuilder('otp')
@@ -232,7 +224,6 @@ export class AccountService {
     TODO catch token expiration error
     */
     const payload = this.jwtService.verify(authToken);
-    console.log(payload);
     const user = await this.loginRepository.findOne({
       where: { email: payload.email, status: 'active' },
       relations: ['member'],
@@ -334,7 +325,6 @@ export class AccountService {
           },
         },
       );
-      // .toPromise();
 
       return response.data;
     } catch (error) {
