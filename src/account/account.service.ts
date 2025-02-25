@@ -210,53 +210,97 @@ export class AccountService {
       user,
     };
   }
-  async resetPassword(newPassword: string, authToken: string): Promise<string> {
-    /*/
-    TODO catch token expiration error
-    */
-    const payload = this.jwtService.verify(authToken);
-    const user = await this.loginRepository.findOne({
-      where: { email: payload.email, status: 'active' },
-      relations: ['member'],
-    });
+  // async resetPassword(newPassword: string, authToken: string): Promise<string> {
+  //   /*/
+  //   TODO catch token expiration error
+  //   */
+  //   const payload = this.jwtService.verify(authToken);
+  //   const user = await this.loginRepository.findOne({
+  //     where: { email: payload.email, status: 'active' },
+  //     relations: ['member'],
+  //   });
 
-    if (!user)
-      throw new BadRequestException('User with this email does not exist.');
+  //   if (!user)
+  //     throw new BadRequestException('User with this email does not exist.');
 
-    const newHashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = newHashedPassword;
-    await this.loginRepository.save(user);
+  //   const newHashedPassword = await bcrypt.hash(newPassword, 10);
+  //   user.password = newHashedPassword;
+  //   await this.loginRepository.save(user);
 
-    // Optionally delete OTP after use
-    await this.otpRepository.delete({ user });
+  //   // Optionally delete OTP after use
+  //   await this.otpRepository.delete({ user });
 
-    return 'Password reset successfully.';
+  //   return 'Password reset successfully.';
+  // }
+
+  resetPassword(newPassword: string, authToken: string): Promise<string> {
+    let payload;
+    try {
+      payload = this.jwtService.verify(authToken);
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+
+    return this.loginRepository
+      .findOne({
+        where: { email: payload.email, status: 'active' },
+        relations: ['member'],
+      })
+      .then((user) => {
+        if (!user) {
+          throw new BadRequestException('User with this email does not exist.');
+        }
+
+        return bcrypt.hash(newPassword, 10).then((newHashedPassword) => {
+          user.password = newHashedPassword;
+          return this.loginRepository.save(user).then(() => {
+            return this.otpRepository.delete({ user }).then(() => {
+              return 'Password reset successfully.';
+            });
+          });
+        });
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
-  async login(
+
+  login(
     email: string,
     password: string,
   ): Promise<{ accessToken: string; user: Login }> {
-    const loginDetails = await this.loginRepository.findOne({
-      where: { email },
-      relations: ['member'],
-    });
-    if (!loginDetails) {
-      throw new NotFoundException('User not found');
-    }
-    const isMatch = await bcrypt.compare(password, loginDetails.password);
+    return this.loginRepository
+      .findOne({
+        where: { email },
+        relations: ['member'],
+      })
+      .then((loginDetails) => {
+        if (!loginDetails) {
+          throw new NotFoundException('User not found');
+        }
 
-    if (!isMatch) {
-      throw new InternalServerErrorException('Invalid Credentials');
-    }
-    const payload = { sub: loginDetails.id, email: loginDetails.email };
-    const accessToken = this.jwtService.sign(payload);
-    return {
-      accessToken,
-      user: {
-        ...loginDetails,
-        member: loginDetails.member,
-      },
-    };
+        return bcrypt
+          .compare(password, loginDetails.password)
+          .then((isMatch) => {
+            if (!isMatch) {
+              throw new InternalServerErrorException('Invalid Credentials');
+            }
+
+            const payload = { sub: loginDetails.id, email: loginDetails.email };
+            const accessToken = this.jwtService.sign(payload);
+
+            return {
+              accessToken,
+              user: {
+                ...loginDetails,
+                member: loginDetails.member,
+              },
+            };
+          });
+      })
+      .catch((error) => {
+        throw error;
+      });
   }
 
   async fetchUserInfo(authToken: string): Promise<any> {
