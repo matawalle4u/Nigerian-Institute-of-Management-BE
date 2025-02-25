@@ -45,15 +45,14 @@ export class AccountController {
     @Headers('Authorization') authToken: string,
     @Body() signupDto: SignupDto,
   ) {
-    console.log(authToken);
     if (!authToken) {
       throw new HttpException(
         'Authorization token is required',
         HttpStatus.BAD_REQUEST,
       );
     }
-    console.log(authToken);
-    return this.accountService.signup(authToken, signupDto);
+    const { email, password } = signupDto;
+    return this.accountService.signup(authToken, email, password);
   }
 
   @Post('request-otp')
@@ -71,7 +70,8 @@ export class AccountController {
     @Body() dto: ResetPasswordDto,
     @Headers('Authorization') authToken: string,
   ) {
-    return this.accountService.resetPassword(dto, authToken);
+    const { newPassword } = dto;
+    return this.accountService.resetPassword(newPassword, authToken);
   }
   @Post('create-user')
   @HttpCode(201)
@@ -95,7 +95,6 @@ export class AccountController {
       );
     }
 
-    // Strip "Bearer " prefix if it exists
     const token = authToken.startsWith('Bearer ')
       ? authToken.slice(7)
       : authToken;
@@ -118,18 +117,12 @@ export class AccountController {
       );
     }
 
-    // Strip "Bearer " prefix if it exists
     const token = authToken.startsWith('Bearer ')
       ? authToken.slice(7)
       : authToken;
 
-    // Extract user ID from token
-    //const userId = stringify(this.accountService.decodeToken(token));
-
-    const user = await this.accountService.changePassword(
-      token,
-      changePasswordDto,
-    );
+    const { newPassword } = changePasswordDto;
+    const user = await this.accountService.changePassword(token, newPassword);
 
     return {
       success: true,

@@ -15,8 +15,6 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { SignupDto } from './dto/signup.dto';
-import { SigninDto } from './dto/signin.dto';
 import axios from 'axios';
 import { Otp } from './entities/otp.entity';
 import {
@@ -112,9 +110,7 @@ export class AccountService {
     }
   }
 
-  async signup(token: string, signupDto: SignupDto): Promise<any> {
-    const { email } = signupDto;
-
+  async signup(token: string, email: string, password: string): Promise<any> {
     const payload = this.jwtService.verify(token);
     const { memberId, memberNo } = payload;
     const member = await this.memberRepository.findOne({
@@ -124,7 +120,7 @@ export class AccountService {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const login = new Login();
     login.member = member;
     login.password = hashedPassword;
@@ -214,10 +210,7 @@ export class AccountService {
       user,
     };
   }
-  async resetPassword(
-    dto: ResetPasswordDto,
-    authToken: string,
-  ): Promise<string> {
+  async resetPassword(newPassword: string, authToken: string): Promise<string> {
     /*/
     TODO catch token expiration error
     */
@@ -230,7 +223,7 @@ export class AccountService {
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
 
-    const newHashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = newHashedPassword;
     await this.loginRepository.save(user);
 
@@ -289,10 +282,7 @@ export class AccountService {
       throw new UnauthorizedException(error.message);
     }
   }
-  async changePassword(
-    authToken: string,
-    changePasswordDto: ChangePasswordDto,
-  ): Promise<any> {
+  async changePassword(authToken: string, newPassword: string): Promise<any> {
     const payload = this.jwtService.verify(authToken);
     const user = await this.loginRepository.findOne({
       where: { email: payload.email },
@@ -301,10 +291,7 @@ export class AccountService {
       throw new NotFoundException('User not found');
     }
 
-    const newHashedPassword = await bcrypt.hash(
-      changePasswordDto.newPassword,
-      10,
-    );
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = newHashedPassword;
     this.loginRepository.save(user);
     return user;
