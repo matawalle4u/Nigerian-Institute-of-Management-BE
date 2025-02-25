@@ -14,14 +14,9 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
-import { ChangePasswordDto } from './dto/change-password.dto';
 import axios from 'axios';
 import { Otp } from './entities/otp.entity';
-import {
-  RequestOtpDto,
-  ResetPasswordDto,
-  VerifyOtpDto,
-} from './dto/request-otp';
+import { RequestOtpDto, VerifyOtpDto } from './dto/request-otp';
 import { MailerService as EmailService } from 'src/mailer/mailer.service';
 
 @Injectable()
@@ -210,28 +205,6 @@ export class AccountService {
       user,
     };
   }
-  // async resetPassword(newPassword: string, authToken: string): Promise<string> {
-  //   /*/
-  //   TODO catch token expiration error
-  //   */
-  //   const payload = this.jwtService.verify(authToken);
-  //   const user = await this.loginRepository.findOne({
-  //     where: { email: payload.email, status: 'active' },
-  //     relations: ['member'],
-  //   });
-
-  //   if (!user)
-  //     throw new BadRequestException('User with this email does not exist.');
-
-  //   const newHashedPassword = await bcrypt.hash(newPassword, 10);
-  //   user.password = newHashedPassword;
-  //   await this.loginRepository.save(user);
-
-  //   // Optionally delete OTP after use
-  //   await this.otpRepository.delete({ user });
-
-  //   return 'Password reset successfully.';
-  // }
 
   resetPassword(newPassword: string, authToken: string): Promise<string> {
     let payload;
@@ -255,7 +228,7 @@ export class AccountService {
           user.password = newHashedPassword;
           return this.loginRepository.save(user).then(() => {
             return this.otpRepository.delete({ user }).then(() => {
-              return 'Password reset successfully.';
+              return user.member;
             });
           });
         });
