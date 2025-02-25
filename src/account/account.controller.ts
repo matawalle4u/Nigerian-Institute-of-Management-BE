@@ -82,7 +82,8 @@ export class AccountController {
   @Post('login')
   @HttpCode(201)
   async login(@Body() signinDto: SigninDto) {
-    return this.accountService.login(signinDto);
+    const { email, password } = signinDto;
+    return this.accountService.login(email, password);
   }
 
   @Get('fetch-info')

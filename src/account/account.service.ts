@@ -108,8 +108,7 @@ export class AccountService {
       // Save the user in the database
       return await this.loginRepository.save(newUser);
     } catch (error) {
-      console.error('Error creating user:', error);
-      throw new InternalServerErrorException('Failed to create user');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -129,12 +128,11 @@ export class AccountService {
     const login = new Login();
     login.member = member;
     login.password = hashedPassword;
-    login.username = memberNo; // Use the member number from the token payload
+    login.username = memberNo;
     login.email = email;
     const savedLogin = await this.loginRepository.save(login);
     member.login_id = savedLogin;
 
-    //sign a jwt token for use
     await this.memberRepository.save(member);
     const cred = { sub: savedLogin.id, email: savedLogin.email };
     const accessToken = this.jwtService.sign(cred);
@@ -242,19 +240,17 @@ export class AccountService {
     return 'Password reset successfully.';
   }
   async login(
-    signinDto: SigninDto,
+    email: string,
+    password: string,
   ): Promise<{ accessToken: string; user: Login }> {
     const loginDetails = await this.loginRepository.findOne({
-      where: { email: signinDto.email },
+      where: { email },
       relations: ['member'],
     });
     if (!loginDetails) {
       throw new NotFoundException('User not found');
     }
-    const isMatch = await bcrypt.compare(
-      signinDto.password,
-      loginDetails.password,
-    );
+    const isMatch = await bcrypt.compare(password, loginDetails.password);
 
     if (!isMatch) {
       throw new InternalServerErrorException('Invalid Credentials');
