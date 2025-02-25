@@ -192,11 +192,6 @@ export class AccountService {
     //Generate token after that
     const payload = { email: dto.email };
     const accessToken = this.jwtService.sign(payload);
-    /*
-    TODO
-    Set reset_token on the login creadentials
-    */
-    //user.reset_token = accessToken;
 
     user.reset_token = accessToken;
     await this.loginRepository.save(user);
@@ -207,17 +202,13 @@ export class AccountService {
   }
 
   resetPassword(newPassword: string, authToken: string): Promise<string> {
-    let payload;
-    try {
-      payload = this.jwtService.verify(authToken);
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
-
-    return this.loginRepository
-      .findOne({
-        where: { email: payload.email, status: 'active' },
-        relations: ['member'],
+    return Promise.resolve()
+      .then(() => this.jwtService.verify(authToken))
+      .then((payload) => {
+        return this.loginRepository.findOne({
+          where: { email: payload.email, status: 'active' },
+          relations: ['member'],
+        });
       })
       .then((user) => {
         if (!user) {
@@ -226,12 +217,11 @@ export class AccountService {
 
         return bcrypt.hash(newPassword, 10).then((newHashedPassword) => {
           user.password = newHashedPassword;
-          return this.loginRepository.save(user).then(() => {
-            return this.otpRepository.delete({ user }).then(() => {
-              return user.member;
-            });
-          });
+          return this.loginRepository.save(user).then(() => user);
         });
+      })
+      .then((user) => {
+        return this.otpRepository.delete({ user }).then(() => user.member);
       })
       .catch((error) => {
         throw error;
@@ -276,43 +266,58 @@ export class AccountService {
       });
   }
 
-  async fetchUserInfo(authToken: string): Promise<any> {
-    try {
-      const payload = this.jwtService.verify(authToken);
-      const user = await this.loginRepository.findOne({
-        where: { email: payload.email, status: 'active' },
-        relations: ['member', 'member.chapter'],
+  fetchUserInfo(authToken: string): Promise<any> {
+    return Promise.resolve()
+      .then(() => {
+        return this.jwtService.verify(authToken);
+      })
+      .then((payload) => {
+        return this.loginRepository.findOne({
+          where: { email: payload.email, status: 'active' },
+          relations: ['member', 'member.chapter'],
+        });
+      })
+      .then((user) => {
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+        return {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          member: { ...user.member },
+        };
+      })
+      .catch((error) => {
+        if (error instanceof NotFoundException) {
+          throw error;
+        }
+        throw new UnauthorizedException(error.message);
       });
-
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      return {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        member: {
-          ...user.member,
-        },
-      };
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
   }
-  async changePassword(authToken: string, newPassword: string): Promise<any> {
-    const payload = this.jwtService.verify(authToken);
-    const user = await this.loginRepository.findOne({
-      where: { email: payload.email },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
 
-    const newHashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = newHashedPassword;
-    this.loginRepository.save(user);
-    return user;
+  changePassword(authToken: string, newPassword: string): Promise<any> {
+    return Promise.resolve(this.jwtService.verify(authToken))
+      .then((payload) => {
+        return this.loginRepository.findOne({
+          where: { email: payload.email },
+        });
+      })
+      .then((user) => {
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+        return bcrypt.hash(newPassword, 10).then((newHashedPassword) => {
+          user.password = newHashedPassword;
+          return this.loginRepository.save(user);
+        });
+      })
+      .then((updatedUser) => updatedUser)
+      .catch((error) => {
+        throw error;
+      });
   }
+
   async verifyNIN(nin: string): Promise<any> {
     try {
       const response = await axios.post(
