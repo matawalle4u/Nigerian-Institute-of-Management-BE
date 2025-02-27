@@ -10,12 +10,9 @@ import { Criteria } from './entities/criteria.entity';
 import { CreateCriteriaDto } from './dto/criteria.dto';
 import { CreateGradeDto } from './dto/grade.dto';
 import { Upgrade } from './entities/upgrade.entity';
-// import { InsufficientCpException } from 'src/membership/utils/MembershipExceptions';
-// import { LicenseException } from 'src/license/utils/LicenceExceptions';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
-import { error } from 'console';
 
 @Injectable()
 export class GradeService {
@@ -272,7 +269,11 @@ export class GradeService {
     return this.upgradeRepo.save(NewUpgrade);
   }
 
-  async gradeIsMoreThanXyears(userId: number, name: string, Xyears: number) {
+  gradeIsMoreThanXyears(
+    userId: number,
+    name: string,
+    Xyears: number,
+  ): Promise<any> {
     return this.upgradeRepo
       .findOne({
         where: {
