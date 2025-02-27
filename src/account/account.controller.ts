@@ -57,12 +57,14 @@ export class AccountController {
 
   @Post('request-otp')
   async requestOtp(@Body() dto: RequestOtpDto) {
-    return this.accountService.requestOtp(dto);
+    const { email } = dto;
+    return this.accountService.requestOtp(email);
   }
 
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.accountService.verifyOtp(dto);
+    const { email, otp } = dto;
+    return this.accountService.verifyOtp(email, otp);
   }
 
   @Post('reset-password')
@@ -76,7 +78,8 @@ export class AccountController {
   @Post('create-user')
   @HttpCode(201)
   async createAccount(@Body() createUserDto: CreateUserDto) {
-    return this.accountService.createUser(createUserDto);
+    const { username, email, password } = createUserDto;
+    return this.accountService.createUser(username, email, password);
   }
 
   @Post('login')

@@ -12,11 +12,9 @@ import { Repository } from 'typeorm';
 import { Login } from './entities/login.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from './dto/create-user.dto';
 import { Members } from 'src/membership/entities/membership.entity';
 import axios from 'axios';
 import { Otp } from './entities/otp.entity';
-import { RequestOtpDto, VerifyOtpDto } from './dto/request-otp';
 import { MailerService as EmailService } from 'src/mailer/mailer.service';
 
 @Injectable()
@@ -74,9 +72,11 @@ export class AccountService {
     };
   }
 
-  async createUser(signupDto: CreateUserDto): Promise<Login> {
-    const { username, email, password } = signupDto;
-
+  async createUser(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<Login> {
     const existingUser = await this.loginRepository.findOne({
       where: { email: email },
     });
@@ -143,9 +143,9 @@ export class AccountService {
       },
     };
   }
-  async requestOtp(dto: RequestOtpDto): Promise<string> {
+  async requestOtp(email: string): Promise<string> {
     const user = await this.loginRepository.findOne({
-      where: { email: dto.email },
+      where: { email },
     });
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
@@ -157,7 +157,7 @@ export class AccountService {
     //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying
     const template_path = process.cwd() + '/templates/';
     this.mailerService.sendEmail(
-      dto.email,
+      email,
       'Password Reset',
       `Your OTP is ${otpCode}`,
       `${template_path}/MAILER_TEMPLATE`,
@@ -168,29 +168,30 @@ export class AccountService {
   }
 
   async verifyOtp(
-    dto: VerifyOtpDto,
+    email: string,
+    otp: string,
   ): Promise<{ accessToken: string; user: Login }> {
     const user = await this.loginRepository.findOne({
-      where: { email: dto.email },
+      where: { email },
     });
     if (!user)
       throw new BadRequestException('User with this email does not exist.');
 
-    const otp = await this.otpRepository
+    const user_otp = await this.otpRepository
       .createQueryBuilder('otp')
       .where('otp.userId = :userId', { userId: user.id })
-      .andWhere('otp.otp = :otp', { otp: dto.otp })
+      .andWhere('otp.otp = :otp', { otp: otp })
       .andWhere('otp.verified = :verified', { verified: 0 })
       .getOne();
 
-    console.log(`otp ${otp}`);
-    if (!otp) throw new BadRequestException('Invalid or expired OTP.');
+    console.log(`otp ${user_otp}`);
+    if (!user_otp) throw new BadRequestException('Invalid or expired OTP.');
 
-    otp.verified = true;
-    await this.otpRepository.save(otp);
+    user_otp.verified = true;
+    await this.otpRepository.save(user_otp);
 
     //Generate token after that
-    const payload = { email: dto.email };
+    const payload = { email: email };
     const accessToken = this.jwtService.sign(payload);
 
     user.reset_token = accessToken;
