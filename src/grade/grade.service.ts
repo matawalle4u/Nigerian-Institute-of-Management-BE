@@ -15,6 +15,7 @@ import { Upgrade } from './entities/upgrade.entity';
 import { PaymentService } from 'src/payment/payment.service';
 import { Login } from 'src/account/entities/login.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { error } from 'console';
 
 @Injectable()
 export class GradeService {
@@ -62,22 +63,37 @@ export class GradeService {
     return this.criteriaRepo.save(criteria);
   }
 
-  async allCriteria(): Promise<Criteria[]> {
-    const criteria = await this.criteriaRepo.find({ select: ['requirements'] });
-    if (!criteria) {
-      throw new NotFoundException('Criteria not found for this grade');
-    }
-    return criteria;
+  allCriteria(): Promise<Criteria[]> {
+    return this.criteriaRepo
+      .find({
+        select: ['requirements'],
+      })
+      .then((criteria) => {
+        if (!criteria) {
+          throw new NotFoundException('Criteria not found');
+        }
+        return criteria;
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
-  async fetchCriteria(id: number): Promise<Criteria> {
-    const criteria = await this.criteriaRepo.findOne({
-      where: { id },
-      select: ['requirements'],
-    });
-    if (!criteria) {
-      throw new NotFoundException('Criteria not found for this grade');
-    }
-    return criteria;
+
+  fetchCriteria(id: number): Promise<Criteria> {
+    return this.criteriaRepo
+      .findOne({
+        where: { id },
+        select: ['requirements'],
+      })
+      .then((criteria) => {
+        if (!criteria) {
+          throw new NotFoundException('Criteria not found');
+        }
+        return criteria;
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 
   async createGrade(createGradeDto: CreateGradeDto): Promise<Grade> {
