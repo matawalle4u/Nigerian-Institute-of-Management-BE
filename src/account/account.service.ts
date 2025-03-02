@@ -16,6 +16,7 @@ import { Members } from 'src/membership/entities/membership.entity';
 import axios from 'axios';
 import { Otp } from './entities/otp.entity';
 import { MailerService as EmailService } from 'src/mailer/mailer.service';
+import { error } from 'console';
 
 @Injectable()
 export class AccountService {
@@ -143,63 +144,75 @@ export class AccountService {
       },
     };
   }
-  async requestOtp(email: string): Promise<string> {
-    const user = await this.loginRepository.findOne({
-      where: { email },
-    });
-    if (!user)
-      throw new BadRequestException('User with this email does not exist.');
 
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
-    const otp = this.otpRepository.create({ user, otp: otpCode });
-    await this.otpRepository.save(otp);
-
-    //TODO OTP should generate a token based on the crendetials to avoid having to provide the email while veryfying
-    const template_path = process.cwd() + '/templates/';
-    this.mailerService.sendEmail(
-      email,
-      'Password Reset',
-      `Your OTP is ${otpCode}`,
-      `${template_path}/MAILER_TEMPLATE`,
-    );
-
-    console.log(`Your OTP is ${otpCode}`);
-    return 'OTP sent to email.';
+  requestOtp(email: string): Promise<string> {
+    return this.loginRepository
+      .findOne({
+        where: { email },
+      })
+      .then((user) => {
+        if (!user)
+          throw new BadRequestException('User with this email does not exist.');
+        const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+        const otp = this.otpRepository.create({ user, otp: otpCode });
+        return this.otpRepository
+          .save(otp)
+          .then(() => {
+            const template_path = process.cwd() + '/templates/';
+            this.mailerService.sendEmail(
+              email,
+              'Password Reset',
+              `Your OTP is ${otpCode}`,
+              `${template_path}/MAILER_TEMPLATE`,
+            );
+            console.log(`Your OTP is ${otpCode}`);
+            return 'OTP sent to email.';
+          })
+          .catch((error) => {
+            throw new Error(error);
+          });
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 
-  async verifyOtp(
+  verifyOtp(
     email: string,
     otp: string,
   ): Promise<{ accessToken: string; user: Login }> {
-    const user = await this.loginRepository.findOne({
-      where: { email },
-    });
-    if (!user)
-      throw new BadRequestException('User with this email does not exist.');
+    return this.loginRepository
+      .findOne({
+        where: { email },
+      })
+      .then((user) => {
+        if (!user) {
+          throw new BadRequestException('User with this email does not exist.');
+        }
 
-    const user_otp = await this.otpRepository
-      .createQueryBuilder('otp')
-      .where('otp.userId = :userId', { userId: user.id })
-      .andWhere('otp.otp = :otp', { otp: otp })
-      .andWhere('otp.verified = :verified', { verified: 0 })
-      .getOne();
+        return this.otpRepository
+          .createQueryBuilder('otp')
+          .where('otp.userId = :userId', { userId: user.id })
+          .andWhere('otp.otp = :otp', { otp: otp })
+          .andWhere('otp.verified = :verified', { verified: 0 })
+          .getOne()
+          .then((user_otp) => {
+            if (!user_otp)
+              throw new BadRequestException('Invalid or expired OTP.');
 
-    console.log(`otp ${user_otp}`);
-    if (!user_otp) throw new BadRequestException('Invalid or expired OTP.');
-
-    user_otp.verified = true;
-    await this.otpRepository.save(user_otp);
-
-    //Generate token after that
-    const payload = { email: email };
-    const accessToken = this.jwtService.sign(payload);
-
-    user.reset_token = accessToken;
-    await this.loginRepository.save(user);
-    return {
-      accessToken,
-      user,
-    };
+            user_otp.verified = true;
+            return this.otpRepository.save(user_otp).then(() => {
+              const accessToken = this.jwtService.sign({ email: email });
+              user.reset_token = accessToken;
+              return this.loginRepository.save(user).then(() => {
+                return {
+                  accessToken,
+                  user,
+                };
+              });
+            });
+          });
+      });
   }
 
   resetPassword(newPassword: string, authToken: string): Promise<string> {
