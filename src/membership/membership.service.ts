@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Members } from './entities/membership.entity';
 import { MembershipDto } from './dto/membership.dto';
+// import { error } from 'console';
 
 @Injectable()
 export class MembershipService {
@@ -16,16 +17,30 @@ export class MembershipService {
     return this.memberRepository.save(member);
   }
 
-  async findAll(page, limit): Promise<{ data: Members[]; total: number }> {
-    const [data, total] = await this.memberRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-    if (!data.length) {
-      throw new NotFoundException('No memberships found');
-    }
+  findAll(page, limit): Promise<{ data: Members[]; total: number }> {
+    // const [data, total] = await this.memberRepository.findAndCount({
+    //   skip: (page - 1) * limit,
+    //   take: limit,
+    // });
+    // if (!data.length) {
+    //   throw new NotFoundException('No memberships found');
+    // }
 
-    return { data, total };
+    // return { data, total };
+    return this.memberRepository
+      .findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+      })
+      .then(([data, total]) => {
+        if (!data.length) {
+          throw new NotFoundException('No membership');
+        }
+        return { data, total };
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 
   async findOne(id: number): Promise<Members> {
