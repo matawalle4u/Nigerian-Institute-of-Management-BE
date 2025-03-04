@@ -8,6 +8,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Query,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
@@ -21,6 +22,7 @@ import {
   ResetPasswordDto,
   VerifyOtpDto,
 } from './dto/request-otp';
+import { PaginationDto } from 'src/general-dtos/pagination.dto';
 
 @Controller('account')
 export class AccountController {
@@ -37,7 +39,10 @@ export class AccountController {
     );
     return user;
   }
-
+  @Get('logins')
+  async logins(@Query() paginationDto: PaginationDto) {
+    return this.accountService.logins(paginationDto.page, paginationDto.limit);
+  }
   @ApiBearerAuth()
   @Post('signup')
   @HttpCode(201)

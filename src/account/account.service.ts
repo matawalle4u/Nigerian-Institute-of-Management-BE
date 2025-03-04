@@ -16,7 +16,7 @@ import { Members } from 'src/membership/entities/membership.entity';
 import axios from 'axios';
 import { Otp } from './entities/otp.entity';
 import { MailerService as EmailService } from 'src/mailer/mailer.service';
-import { error } from 'console';
+// import { error } from 'console';
 
 @Injectable()
 export class AccountService {
@@ -106,43 +106,138 @@ export class AccountService {
     }
   }
 
-  async signup(token: string, email: string, password: string): Promise<any> {
-    const payload = this.jwtService.verify(token);
-    const { memberId, memberNo } = payload;
-    const member = await this.memberRepository.findOne({
-      where: { id: memberId },
-    });
-    if (!member) {
-      throw new UnauthorizedException('Invalid token');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const login = new Login();
-    login.member = member;
-    login.password = hashedPassword;
-    login.username = memberNo;
-    login.email = email;
-    const savedLogin = await this.loginRepository.save(login);
-    member.login_id = savedLogin;
-
-    await this.memberRepository.save(member);
-    const cred = { sub: savedLogin.id, email: savedLogin.email };
-    const accessToken = this.jwtService.sign(cred);
-
-    return {
-      accessToken: accessToken,
-      user: {
-        id: savedLogin.id,
-        email: savedLogin.email,
-        username: savedLogin.username,
-        member: {
-          id: member.id,
-          member_no: member.member_no,
-          first_name: member.first_name,
-          last_name: member.last_name,
+  logins(page, limit): Promise<{ data: Login[]; total: number }> {
+    return this.loginRepository
+      .findAndCount({
+        relations: ['member'],
+        select: {
+          id: true,
+          email: true,
+          member: {
+            first_name: true,
+            last_name: true,
+          },
+          date: true,
         },
-      },
-    };
+        skip: (page - 1) * limit,
+        take: limit,
+      })
+      .then(([data, total]) => {
+        if (!data.length) {
+          throw new NotFoundException('No user login');
+        }
+        return { data, total };
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
+  }
+
+  signup(token: string, email: string, password: string): Promise<any> {
+    return (
+      Promise.resolve()
+        // Step 1: Verify JWT token
+        .then(() => this.jwtService.verify(token))
+        .catch((error) => {
+          throw new UnauthorizedException('Invalid token: ' + error.message);
+        })
+
+        // Step 2: Check if user is already registered with this token
+        .then((payload) => {
+          return this.loginRepository
+            .findOne({
+              where: { member: { member_no: payload.memberNo } },
+            })
+            .then((registeredUser) => {
+              if (registeredUser) {
+                throw new NotFoundException(
+                  'A user already registered with the provided token',
+                );
+              }
+              return payload;
+            });
+        })
+
+        // Step 3: Find the member
+        .then((payload) => {
+          return this.memberRepository
+            .findOne({
+              where: { id: payload.memberId },
+            })
+            .then((member) => {
+              if (!member) {
+                throw new UnauthorizedException(
+                  'Invalid token: member not found',
+                );
+              }
+              return { member, memberNo: payload.memberNo };
+            });
+        })
+
+        // Step 4: Hash password and create login record
+        .then(({ member, memberNo }) => {
+          return bcrypt.hash(password, 10).then((hashedPassword) => {
+            const login = new Login();
+            login.member = member;
+            login.password = hashedPassword;
+            login.username = memberNo;
+            login.email = email;
+
+            return this.loginRepository
+              .save(login)
+              .then((savedLogin) => ({ member, savedLogin }))
+              .catch(() => {
+                throw new InternalServerErrorException(
+                  'Failed to save login details',
+                );
+              });
+          });
+        })
+
+        // Step 5: Update member with login reference
+        .then(({ member, savedLogin }) => {
+          member.login_id = savedLogin;
+
+          return this.memberRepository
+            .save(member)
+            .then(() => savedLogin)
+            .catch(() => {
+              throw new InternalServerErrorException('Failed to save member');
+            });
+        })
+
+        // Step 6: Generate access token and prepare response
+        .then((savedLogin) => {
+          return Promise.resolve(
+            this.jwtService.sign({
+              sub: savedLogin.id,
+              email: savedLogin.email,
+            }),
+          )
+            .then((accessToken) => {
+              const member = savedLogin.member;
+              return {
+                accessToken,
+                user: {
+                  id: savedLogin.id,
+                  email: savedLogin.email,
+                  username: savedLogin.username,
+                  member: {
+                    id: member.id,
+                    member_no: member.member_no,
+                    first_name: member.first_name,
+                    last_name: member.last_name,
+                  },
+                },
+              };
+            })
+            .catch((error) => {
+              throw new InternalServerErrorException(
+                'Failed to generate token: ' + error.message,
+              );
+            });
+        })
+    );
   }
 
   requestOtp(email: string): Promise<string> {
