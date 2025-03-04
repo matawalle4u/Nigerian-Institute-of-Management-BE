@@ -68,15 +68,20 @@ export class NotificationService {
       });
   }
 
-  async markAsRead(notificationId: number): Promise<Notification> {
-    const notification = await this.notificationRepository.findOneBy({
-      id: notificationId,
-    });
-    if (!notification) {
-      throw new Error('Notification not found');
-    }
-
-    notification.isRead = true;
-    return this.notificationRepository.save(notification);
+  markAsRead(notificationId: number): Promise<Notification> {
+    return this.notificationRepository
+      .findOneBy({
+        id: notificationId,
+      })
+      .then((notification) => {
+        if (!notification) {
+          throw new Error('Notification not found');
+        }
+        notification.isRead = true;
+        return this.notificationRepository.save(notification);
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 }
