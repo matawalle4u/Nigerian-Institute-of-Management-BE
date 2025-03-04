@@ -14,21 +14,69 @@ export class NotificationService {
     private readonly userRepository: Repository<Login>,
   ) {}
 
-  async createNotification(
-    createNotificationDto: CreateNotificationDto,
+  // createNotification(
+  //   login_id: number,
+  //   title: string,
+  //   message: string,
+  //   type: string,
+  //   // createNotificationDto: CreateNotificationDto,
+  // ): Promise<Notification> {
+  //   // const { loginId, title, message, type } = createNotificationDto;
+  //   // const notification = this.notificationRepository.create({
+  //   //   user: { id: login_id },
+  //   //   title,
+  //   //   message,
+  //   //   isRead: false,
+  //   //   type,
+  //   // });
+
+  //   return this.notificationRepository
+  //     .create({
+  //       user: { id: login_id },
+  //       title,
+  //       message,
+  //       isRead: false,
+  //       type,
+  //     })
+  //     .then((notification) => {
+  //       return this.notificationRepository.save(notification);
+  //     })
+  //     .catch((err) => {
+  //       throw new Error(err);
+  //     });
+
+  //   // return this.notificationRepository
+  //   // .save(notification)
+  //   // .then((result)=>{
+  //   //   return result;
+  //   // }).catch((error)=>{
+  //   //   throw new Error(error);
+  //   // });
+  // }
+
+  createNotification(
+    login_id: number,
+    title: string,
+    message: string,
+    type: string,
   ): Promise<Notification> {
-    const { loginId, title, message, type } = createNotificationDto;
     const notification = this.notificationRepository.create({
-      user: { id: loginId },
+      user: { id: login_id },
       title,
       message,
       isRead: false,
       type,
     });
 
-    return this.notificationRepository.save(notification);
+    return this.notificationRepository
+      .save(notification)
+      .then((savedNotification) => {
+        return savedNotification;
+      })
+      .catch((err) => {
+        throw new Error(err.message);
+      });
   }
-
   async createGeneralNotification(
     createGeneralNotificationDto: CreateGeneralNotificationDto,
   ) {

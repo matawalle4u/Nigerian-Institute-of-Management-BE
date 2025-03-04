@@ -8,7 +8,13 @@ export class NotificationController {
 
   @Post('create')
   async create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.createNotification(createNotificationDto);
+    const { loginId, title, message, type } = createNotificationDto;
+    return this.notificationService.createNotification(
+      loginId,
+      title,
+      message,
+      type,
+    );
   }
   @Post('create/all')
   async createBillForAllUsers(
