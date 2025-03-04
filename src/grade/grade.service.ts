@@ -97,7 +97,7 @@ export class GradeService {
     const criteria = this.gradeRepo.create(createGradeDto);
     return this.gradeRepo.save(criteria);
   }
-  async allGrade(): Promise<Grade[]> {
+  allGrade(): Promise<Grade[]> {
     return this.gradeRepo
       .find({
         relations: ['criteria'],
@@ -113,7 +113,7 @@ export class GradeService {
       });
   }
 
-  async fetchGrade(gradeName: string): Promise<Grade> {
+  fetchGrade(gradeName: string): Promise<Grade> {
     return this.gradeRepo
       .findOne({
         where: { name: gradeName },
