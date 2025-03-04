@@ -16,6 +16,7 @@ import { PaymentProviderFactory } from 'src/payment/providers/payment-provider.f
 import { Bill } from 'src/billing/entities/bill.entity';
 import { PaystackProvider } from 'src/payment/providers/paystack.provider';
 import { InterswitchProvider } from 'src/payment/providers/interswitch.provider';
+import { RemitaProvider } from 'src/payment/providers/remita.provider';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { InterswitchProvider } from 'src/payment/providers/interswitch.provider'
     PaymentProviderFactory,
     PaystackProvider,
     InterswitchProvider,
+    RemitaProvider,
   ],
 })
 export class GradeModule {}

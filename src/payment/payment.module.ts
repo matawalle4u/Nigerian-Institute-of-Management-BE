@@ -9,6 +9,7 @@ import { PaymentProviderFactory } from './providers/payment-provider.factory';
 import { PaystackProvider } from './providers/paystack.provider';
 import { InterswitchProvider } from './providers/interswitch.provider';
 import { Bill } from 'src/billing/entities/bill.entity';
+import { RemitaProvider } from './providers/remita.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Payment, Login, License, Bill])],
@@ -17,6 +18,7 @@ import { Bill } from 'src/billing/entities/bill.entity';
     PaymentProviderFactory,
     PaystackProvider,
     InterswitchProvider,
+    RemitaProvider,
   ],
   controllers: [PaymentController],
   exports: [PaymentService],
