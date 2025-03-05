@@ -11,6 +11,8 @@ import { ConfigModule } from '@nestjs/config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 import { MailerService as EmailService } from 'src/mailer/mailer.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -39,12 +41,13 @@ import { MailerService as EmailService } from 'src/mailer/mailer.service';
       },
     }),
     TypeOrmModule.forFeature([Login, Members, Otp]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'Yan2Mak!!',
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1h' },
     }),
   ],
   controllers: [AccountController],
-  providers: [AccountService, EmailService],
+  providers: [AccountService, EmailService, JwtStrategy],
 })
 export class AccountModule {}

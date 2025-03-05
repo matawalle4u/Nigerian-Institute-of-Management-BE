@@ -27,6 +27,7 @@ import {
 } from './dto/request-otp';
 import { PaginationDto } from 'src/general-dtos/pagination.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('account')
 export class AccountController {
@@ -144,6 +145,7 @@ export class AccountController {
   }
 
   @Put('profile/:id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update member profile using loginId' })
   async updateProfile(
