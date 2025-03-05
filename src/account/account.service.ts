@@ -431,9 +431,12 @@ export class AccountService {
     loginId: number,
     updateData: Partial<Members>,
   ): Promise<Members> {
+    console.log('Getting the ID ', loginId);
+    console.log('update Data', updateData);
     return this.memberRepository
       .findOne({ where: { login_id: { id: loginId } } })
       .then((member) => {
+        console.log('logging=>', member);
         if (!member) {
           throw new Error('Member not found');
         }

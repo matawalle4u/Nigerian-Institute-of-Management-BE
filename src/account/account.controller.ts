@@ -143,14 +143,14 @@ export class AccountController {
     };
   }
 
-  @Put('profile')
+  @Put('profile/:id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update member profile' })
+  @ApiOperation({ summary: 'Update member profile using loginId' })
   async updateProfile(
-    @Param('id') login_id: number,
+    @Param('id') id: string,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    // const userId = req.user.id;
+    const login_id = Number(id);
     return await this.accountService.updateProfile(login_id, updateProfileDto);
   }
 
