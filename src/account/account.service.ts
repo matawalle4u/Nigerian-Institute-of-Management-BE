@@ -427,6 +427,27 @@ export class AccountService {
       });
   }
 
+  updateProfile(
+    loginId: number,
+    updateData: Partial<Members>,
+  ): Promise<Members> {
+    return this.memberRepository
+      .findOne({ where: { login_id: { id: loginId } } })
+      .then((member) => {
+        if (!member) {
+          throw new Error('Member not found');
+        }
+        Object.assign(member, updateData);
+        return this.memberRepository.save(member);
+      })
+      .then((updatedMember) => {
+        return updatedMember;
+      })
+      .catch((err) => {
+        throw new Error(`Failed to update member ${err}`);
+      });
+  }
+
   async verifyNIN(nin: string): Promise<any> {
     try {
       const response = await axios.post(

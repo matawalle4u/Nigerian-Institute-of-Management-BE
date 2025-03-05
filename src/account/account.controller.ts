@@ -9,12 +9,15 @@ import {
   HttpStatus,
   Param,
   Query,
+  UseGuards,
+  Put,
+  Req,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { ValidateMembershipDto } from './dto/validate-membership.dto';
-import { ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBody, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
@@ -23,6 +26,7 @@ import {
   VerifyOtpDto,
 } from './dto/request-otp';
 import { PaginationDto } from 'src/general-dtos/pagination.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('account')
 export class AccountController {
@@ -138,6 +142,18 @@ export class AccountController {
       data: user,
     };
   }
+
+  @Put('profile')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update member profile' })
+  async updateProfile(
+    @Param('id') login_id: number,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    // const userId = req.user.id;
+    return await this.accountService.updateProfile(login_id, updateProfileDto);
+  }
+
   @Post('verify-nin/:nin')
   async verifyNIN(@Param('nin') nin: string) {
     return this.accountService.verifyNIN(nin);
