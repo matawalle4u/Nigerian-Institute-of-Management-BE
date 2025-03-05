@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
   Put,
-  Req,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { SignupDto } from './dto/signup.dto';
