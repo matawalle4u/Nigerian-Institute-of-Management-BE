@@ -16,6 +16,7 @@ import { BillingModule } from './billing/billing.module';
 import { NotificationModule } from './notification/notification.module';
 import { ZoneModule } from './zone/zone.module';
 import { MailerModule } from './mailer/mailer.module';
+import { HardwareModule } from './hardware/hardware.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { MailerModule } from './mailer/mailer.module';
     NotificationModule,
     ZoneModule,
     MailerModule,
+    HardwareModule,
   ],
 })
 export class AppModule {}

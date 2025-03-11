@@ -9,6 +9,9 @@ import {
 import { Login } from 'src/account/entities/login.entity';
 @Entity('notifications')
 export class Notification {
+  then(p0: (notification: any) => Promise<any>): Promise<Notification> {
+    throw new Error('Method not implemented.');
+  }
   @PrimaryGeneratedColumn()
   id: number;
 

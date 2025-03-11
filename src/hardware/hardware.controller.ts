@@ -5,7 +5,7 @@ import { PinService } from './hardware.service';
 export class PinController {
   constructor(private readonly pinService: PinService) {}
 
-  @Post('instruction')
+  @Post('instructions')
   async createInstruction(
     @Body() body: { nodeId: number; pins: { pin: number; state: number }[] },
   ) {
