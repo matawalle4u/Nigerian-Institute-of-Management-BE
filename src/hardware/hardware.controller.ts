@@ -7,9 +7,18 @@ export class PinController {
 
   @Post('instructions')
   async createInstruction(
-    @Body() body: { nodeId: number; pins: { pin: number; state: number }[] },
+    @Body()
+    body: {
+      nodeId: number;
+      override: 0 | 1;
+      pins: { pin: number; state: number }[];
+    },
   ) {
-    return this.pinService.createInstruction(body.nodeId, body.pins);
+    return this.pinService.createInstruction(
+      body.nodeId,
+      body.override,
+      body.pins,
+    );
   }
 
   @Get('instructions')

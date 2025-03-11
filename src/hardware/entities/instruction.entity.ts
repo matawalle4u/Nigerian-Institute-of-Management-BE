@@ -12,6 +12,14 @@ export class Instruction {
   @ApiProperty({ description: 'Node ID associated with the instruction' })
   nodeId: number;
 
+  @Column({
+    type: 'enum',
+    enum: [0, 1],
+    default: 1,
+  })
+  @ApiProperty({ description: 'Flag to track override status' })
+  override: 0 | 1;
+
   @OneToMany(() => Pin, (pin) => pin.instruction, {
     cascade: true,
     eager: true,

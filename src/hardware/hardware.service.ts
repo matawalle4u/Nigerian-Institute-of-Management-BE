@@ -15,10 +15,12 @@ export class PinService {
 
   async createInstruction(
     nodeId: number,
+    override: 0 | 1,
     pins: { pin: number; state: number }[],
   ) {
     const instruction = new Instruction();
     instruction.nodeId = nodeId;
+    instruction.override = override;
     instruction.pins = pins.map((p) => {
       const pin = new Pin();
       pin.pin = p.pin;
