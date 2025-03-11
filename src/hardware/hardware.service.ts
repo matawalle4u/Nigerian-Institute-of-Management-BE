@@ -19,7 +19,12 @@ export class PinService {
   ) {
     const instruction = new Instruction();
     instruction.nodeId = nodeId;
-    instruction.pins = pins.map((p) => Object.assign(new Pin(), p));
+    instruction.pins = pins.map((p) => {
+      const pin = new Pin();
+      pin.pin = p.pin;
+      pin.state = p.state;
+      return pin;
+    });
     return this.instructionRepository.save(instruction);
   }
 
